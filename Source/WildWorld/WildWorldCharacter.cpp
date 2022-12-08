@@ -72,25 +72,12 @@ void AWildWorldCharacter::SetupPlayerInputComponent(class UInputComponent* Playe
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &AWildWorldCharacter::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &AWildWorldCharacter::TouchStopped);
 
-	// VR headset functionality
-	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AWildWorldCharacter::OnResetVR);
-}
-
-
-void AWildWorldCharacter::OnResetVR()
-{
-	// If WildWorld is added to a project via 'Add Feature' in the Unreal Editor the dependency on HeadMountedDisplay in WildWorld.Build.cs is not automatically propagated
-	// and a linker error will result.
-	// You will need to either:
-	//		Add "HeadMountedDisplay" to [YourProject].Build.cs PublicDependencyModuleNames in order to build successfully (appropriate if supporting VR).
-	// or:
-	//		Comment or delete the call to ResetOrientationAndPosition below (appropriate if not supporting VR)
-	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
 }
 
 void AWildWorldCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
 {
 		Jump();
+		
 }
 
 void AWildWorldCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
@@ -120,6 +107,9 @@ void AWildWorldCharacter::MoveForward(float Value)
 
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, Direction.ToString());
+
 		AddMovementInput(Direction, Value);
 	}
 }
@@ -134,7 +124,23 @@ void AWildWorldCharacter::MoveRight(float Value)
 	
 		// get right vector 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, Direction.ToString());
+		
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
+}
+
+
+void AWildWorldCharacter::DisablePlayerInput()
+{
+	DisableInput(Cast<APlayerController, AController>(GetController()));
+
+	GetMovementComponent()->StopMovementImmediately();
+}
+
+void AWildWorldCharacter::EnablePlayerInput()
+{
+	EnableInput(Cast<APlayerController, AController>(GetController()));
 }

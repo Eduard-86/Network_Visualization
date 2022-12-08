@@ -39,7 +39,7 @@ void AMyNetwork::BeginPlay()
 	///
 	////////////////////////////////////////////////////////////////
 
-	
+	StartSimulator();
 }
 
 void AMyNetwork::StartSimulator()
@@ -122,7 +122,7 @@ void AMyNetwork::WorkTick()
 
 		if(RandIndex <= SettiStruct.callEvet)
 		{
-			ArrayNodeOnTheWorld[i]->BroatcastEvectsAllSubs();
+			//ArrayNodeOnTheWorld[i]->BroatcastEvectsAllSubs();
 		}
 		else if(RandIndex > SettiStruct.callEvet && 
 			RandIndex <= SettiStruct.callEvet + SettiStruct.subscribeOnNode)

@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/ActorComponent.h"
+#include <utility>
 
 
 #include "MyNodeActor.generated.h"
@@ -33,7 +34,7 @@
  
  */
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDelegateNode, float, Val, class AMyNodeActor*, Who);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDelegateNode, int, Val, class AMyNodeActor*, Who);
 
 class UShapeComponent;
 class AMyNetwork;
@@ -45,46 +46,54 @@ class WILDWORLD_API AMyNodeActor : public AActor
 
 	friend class AMyNetwork;
 
-//public:	
+public:	
 	// Sets default values for this actor's properties
 	AMyNodeActor();
 
-	FDelegateNode SubDel;
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
+	
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* Mesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UShapeComponent* Trigger;
 
-	//TArray<AActor*> ArrayNodeOnTheWorld;
-	
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+	FDelegateNode SubDel;
+	 
 	UMaterialInstanceDynamic* DynMater;
 
-	// функция для подписки 
-	UFUNCTION()
-	void CallEvent(float val, AMyNodeActor* who);
+	
+	//TArray<AMyNodeActor*> OnMeSubscription;
+	//TArray<AMyNodeActor*> ISubscription;
+
+	TArray< std::pair<AMyNodeActor*, bool>> OnMeSubscription;
+
+	TMap<AMyNodeActor*, std::pair<bool, int>> ISubscription;
+
 
 	// event for the collision,
 	UFUNCTION()
-	void BrotcastEvents(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	void BroadcastEvents(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	void SubscribeOnMe(AMyNodeActor* NewSubNode);
+	void SubscribeOnMe(AMyNodeActor* NewSubNode, bool MetKey);
 
 	void UnSubscribeOnMe(AMyNodeActor* NewSubNode);
+
+	// функция для подписки 
+	UFUNCTION()
+	void SumEvent(int val, AMyNodeActor* who);
+
+	UFUNCTION()
+	void CallEvent(int val, AMyNodeActor* who);
 	
 #pragma region Events
 
-	TArray<AMyNodeActor*> OnMeSubscription;
-
-	TArray<AMyNodeActor*> ISubscription;
-
-	void BroatcastEvectsAllSubs(); 
+	
+	void BroadcastEventsAllSubs(); 
 
 	void EventSubscribeOnNode(); 
 	
