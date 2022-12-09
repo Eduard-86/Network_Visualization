@@ -7,6 +7,8 @@
 #include "Components/SphereComponent.h"
 #include "MyNetwork.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include <utility>
+#include <iterator>
 
 
 // Sets default values
@@ -47,9 +49,9 @@ void AMyNodeActor::BeginPlay()
 	 */
 
 	//Trigger->OnComponentBeginOverlap.AddDynamic(this, &AMyNodeActor::BrotcastEvents);
-	
-	Mesh->OnComponentBeginOverlap.AddDynamic(this, &AMyNodeActor::BroadcastEvents);
-	
+
+	Mesh->OnComponentBeginOverlap.AddDynamic(this, &AMyNodeActor::BrotcastEvents);
+
 	DynMater = Mesh->CreateAndSetMaterialInstanceDynamic(0);
 
 	if(DynMater)
@@ -57,12 +59,20 @@ void AMyNodeActor::BeginPlay()
 		DynMater->SetVectorParameterValue("ColorVal", FLinearColor::White);
 	}
 
+	bool test = Mesh->OverlapComponent(GetActorLocation(), FQuat(), FCollisionShape());
+
+	if(test)
+	{
+		int i = 0;
+		i -= 20;
+	}
+	
 }
 
 
 // event for the collision,
 // todo delete this later
-void AMyNodeActor::BroadcastEvents(UPrimitiveComponent* OverlappedComponent,
+void AMyNodeActor::BrotcastEvents(UPrimitiveComponent* OverlappedComponent,
 	AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -72,57 +82,45 @@ void AMyNodeActor::BroadcastEvents(UPrimitiveComponent* OverlappedComponent,
 
 }
 
-void AMyNodeActor::SubscribeOnMe(AMyNodeActor* NewSubNode, bool MetKey)
+
+void AMyNodeActor::SubscribeOnMe(AMyNodeActor* NewSubNode)
 {
-	if(MetKey)
-	{
-		SubDel.AddDynamic(NewSubNode, &AMyNodeActor::SumEvent);
-	}
-	else
-	{
-		SubDel.AddDynamic(NewSubNode, &AMyNodeActor::CallEvent);
-	}
+	SubDel.AddDynamic(NewSubNode, &AMyNodeActor::SumEvent);
 
-	OnMeSubscription.Add(std::make_pair(NewSubNode, MetKey));
-
+	MySubscription.Emplace(FSubData(NewSubNode, 0, 0));
 	
 
+	//MySubscription.Add(NewSubNode);
 }
 
 void AMyNodeActor::UnSubscribeOnMe(AMyNodeActor* NewSubNode)
 {
 	check(NewSubNode);
 
-
-	for (std::pair<AMyNodeActor*, bool> Element : OnMeSubscription)
-	{
-		if (Element.first == NewSubNode)
-		{
-			if (Element.second)
-			{
-				SubDel.RemoveDynamic(NewSubNode, &AMyNodeActor::SumEvent);
-				return;
-			}
-			else
-			{
-				SubDel.RemoveDynamic(NewSubNode, &AMyNodeActor::CallEvent);
-				return;
-			}
-
-		}
-		else
-		{
-			//todo make something error report 
-		}
-	}
-} 
-
-// main event that calleds delegate 
-void AMyNodeActor::SumEvent(int val, AMyNodeActor* who)
-{
-	FString StringInt = FString::FromInt(val);
 	
-	FString Masage("I cach ! - " + StringInt + " " + who->GetName());
+	FSubData* IsFind = MySubscription.FindByPredicate(
+	[&](FSubData SubData)
+	{
+		return SubData.SubNode == NewSubNode;
+	});
+	
+	if(IsFind)
+	{
+		SubDel.RemoveDynamic(NewSubNode, &AMyNodeActor::SumEvent);
+	}
+	else
+	{
+		//todo make something error report 
+	}
+	
+}
+
+// evern for subscribe
+void AMyNodeActor::SumEvent(float val, AMyNodeActor* who)
+{
+	FString StringFloat = FString::SanitizeFloat(val);
+	
+	FString Masage("I cach ! - " + StringFloat + " " + who->GetName());
 	
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, Masage);
 
@@ -148,15 +146,23 @@ void AMyNodeActor::SumEvent(int val, AMyNodeActor* who)
 
 }
 
-void AMyNodeActor::CallEvent(int val, AMyNodeActor* who)
+// evern for subscribe
+void AMyNodeActor::CounterEvent(float val, AMyNodeActor* who)
 {
-	
+	FString StringFloat = FString::SanitizeFloat(val);
+
+	FString Masage("I cach ! - " + StringFloat + " " + who->GetName());
+
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, Masage);
+
+	// set random color on the "colorval" property
+	DynMater->SetVectorParameterValue("ColorVal", FLinearColor::MakeRandomColor());
 }
 
 
 #pragma region Events
 
-void AMyNodeActor::BroadcastEventsAllSubs()
+void AMyNodeActor::BroatcastEvectsAllSubs()
 {
 	SubDel.Broadcast(FMath::Rand() % 100, this);
 }
@@ -164,47 +170,60 @@ void AMyNodeActor::BroadcastEventsAllSubs()
 
 void AMyNodeActor::EventSubscribeOnNode()
 {
+	//int32 my = ISubscription.Num();
 
-	int32 my = ISubscription.Num();
-	int32 del = OnMeSubscription.Num();
+	int32 my = SubDel.GetAllObjects().Num();
+	int32 del = MySubscription.Num();
 
-	if (!(my && del))
+	
+
+	if (my && del)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("Ноде пора на помойку а не подписки подписывать"));
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, 
+			TEXT("Ноде пора на помойку а не подписки подписывать"));
 		return;
 	}
 
 	int32 indexsusa = FMath::Rand() % (my + del);
 
 	AMyNodeActor* newsub = nullptr;
-
+	
 	if (indexsusa < my && my != 0)
 	{
 
 		int32 indexmysub = indexsusa == my ? indexsusa - 1 : indexsusa;
 
-		ISubscription.CreateIterator();
-		
-		newsub = ISubscription[indexmysub];
+		newsub = MySubscription[indexmysub].SubNode;
 
-		int32 mysub_nei = newsub->ISubscription.Num();
-		int32 del_nei = newsub->OnMeSubscription.Num();
+		//newsub = Cast<AMyNodeActor, UObject>(SubDel.GetAllObjects()[indexmysub]);
+
+		//Cast<AMyNodeActor*, UObject*>(SubDel.GetAllObjects()[indexmysub]);
+		
+		
+		//int32 mysub_nei = newsub->ISubscription.Num();
+		int32 mysub_nei = newsub->SubDel.GetAllObjects().Num();
+		int32 del_nei = newsub->MySubscription.Num();
 		int32 indexsusa_nei = FMath::Rand() % (mysub_nei + del_nei);
 
 		if (indexsusa_nei < mysub_nei && mysub_nei != 0)
 		{
 			int32 indexmysub_nei = indexsusa_nei == mysub_nei ? indexsusa_nei - 1 : indexsusa_nei;
 
-			newsub = newsub->ISubscription[indexmysub_nei];
+			newsub = newsub->MySubscription[indexmysub_nei].SubNode;
+			
+			//newsub = newsub->ISubscription[indexmysub_nei];
 
+			
 			check(newsub);
 		}
 		else if (del_nei != 0)
 		{
 			int32 inxdel = indexsusa_nei - mysub_nei;
 
-			newsub = newsub->OnMeSubscription[inxdel].first;
+			newsub = Cast<AMyNodeActor, UObject>(newsub->SubDel.GetAllObjects()[inxdel]);
 
+			//newsub = newsub->MySubscription[inxdel];
+			
 			check(newsub);
 		}
 
@@ -213,17 +232,25 @@ void AMyNodeActor::EventSubscribeOnNode()
 	{
 		int32 inxdel = indexsusa - my;
 
-		newsub = OnMeSubscription[inxdel].first;
+		newsub = Cast<AMyNodeActor, UObject>(newsub->SubDel.GetAllObjects()[inxdel]);
 
-		int32 mysub_nei = newsub->ISubscription.Num();
-		int32 del_nei = newsub->OnMeSubscription.Num();
+		//newsub = MySubscription[inxdel];
+		
+
+		//int32 mysub_nei = newsub->ISubscription.Num();
+		int32 mysub_nei = newsub->SubDel.GetAllObjects().Num();
+
+		int32 del_nei = newsub->MySubscription.Num();
+		
 		int32 indexsusa_nei = FMath::Rand() % (mysub_nei + del_nei);
 
 		if (indexsusa_nei < mysub_nei && mysub_nei != 0)
 		{
 			int32 indexmysub_nei = indexsusa_nei == mysub_nei ? indexsusa_nei - 1 : indexsusa_nei;
 
-			newsub = newsub->ISubscription[indexmysub_nei];
+			//newsub = newsub->ISubscription[indexmysub_nei];
+
+			newsub = newsub->MySubscription[indexmysub_nei].SubNode;
 
 			check(newsub);
 		}
@@ -231,58 +258,76 @@ void AMyNodeActor::EventSubscribeOnNode()
 		{
 			inxdel = indexsusa_nei - mysub_nei;
 
-			newsub = newsub->OnMeSubscription[inxdel].first;
+			//newsub = newsub->MySubscription[inxdel];
+
+			newsub = Cast<AMyNodeActor, UObject>(newsub->SubDel.GetAllObjects()[inxdel]);
 
 			check(newsub);
 		}
 
 	}
+	else
+	{
+		// ошибка а размере массивов
+		check(nullptr);
+	}
 
-	auto temp = OnMeSubscription.FindByPredicate([&newsub](std::pair<AMyNodeActor*, bool> vel) -> bool
-		{
-			if (vel.first == newsub) return true;
-			else return false;
-		});
-
-	if (temp != nullptr)
+	
+	// Проверка на подписку, неподписан ли уже 
+	if(
+		FSubData* IsFind = MySubscription.FindByPredicate(
+			[&](FSubData SubData)
+			{
+				return SubData.SubNode == newsub;
+			})
+		)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("Узел был в подписках!"));
 		return;
 	}
 
+	/*
+	// Проверка на подписку, неподписан ли уже 
+	if (MySubscription.Find(newsub))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("Узел был в подписках!"));
+		return;
+	}*/
 
-	if (ISubscription.Find(newsub))
+	//if (ISubscription.Find(newsub))
+	if(SubDel.GetAllObjects().Find(newsub))
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("Мы были подписаны на узел!"));
 		return;
 	}
 
 	// Ура подписка удолась !!!
-	
-	ISubscription.Add(newsub);
 
-	// todo - вообще охота рандомную функцию 
-
-	
-	if(FMath::RandBool())
+	if(FMath::Rand() % 2 == 0)
 	{
-		newsub->SubscribeOnMe(this, true);
+		newsub->SubDel.AddDynamic(this, &AMyNodeActor::SumEvent);
+
+		MySubscription.Emplace(FSubData(newsub, true));
 	}
 	else
 	{
-		newsub->SubscribeOnMe(this, false);
+		newsub->SubDel.AddDynamic(this, &AMyNodeActor::CounterEvent);
+
+		MySubscription.Emplace(FSubData(newsub, false));
 	}
 	
-	
 
+	//ISubscription.Add(newsub);
 
+	//newsub->SubscribeOnMe(this);
 
 }
 
 
 void AMyNodeActor::UnSubscribe(AMyNodeActor* NewSubNode)
 {
-	int32 size = ISubscription.Num();
+	
+	int32 size = SubDel.GetAllObjects().Num();
 	
 	if(size)
 	{
@@ -290,12 +335,16 @@ void AMyNodeActor::UnSubscribe(AMyNodeActor* NewSubNode)
 
 		//ISubscription[randind]->SubDel.RemoveDynamic(this, &AMyNodeActor::CallEvent);
 
-		NewSubNode->UnSubscribe(this);
-
-		ISubscription.Remove()
-
-		ISubscription.RemoveAt(randind);
+		Cast<AMyNodeActor, UObject>(SubDel.GetAllObjects()[randind])->UnSubscribe(this);
 		
+		//NewSubNode->UnSubscribe(this);
+
+		//ISubscription.RemoveAt(randind);
+		
+	}
+	else
+	{
+		check(size);
 	}
 }
 
@@ -311,9 +360,9 @@ AMyNodeActor* AMyNodeActor::CreateAndSubscribeNewNode()
 	{
 		AMyNodeActor* NewNode = Cast<AMyNodeActor>(World->SpawnActor(AMyNodeActor::StaticClass()));
 		
-		NewNode->SubDel.AddDynamic(this, &AMyNodeActor::SumEvent);
+		//NewNode->SubDel.AddDynamic(this, &AMyNodeActor::CallEvent);
 
-		ISubscription.Add(NewNode);
+		//ISubscription.Add(NewNode);
 
 		//todo
 		//NewNode->Mesh->OverlapComponent(NewNode->GetActorLocation(), FQuat(), FCollisionShape());

@@ -6,7 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/ActorComponent.h"
-#include <utility>
+
+#include "Chaos/Pair.h"
 
 
 #include "MyNodeActor.generated.h"
@@ -34,7 +35,31 @@
  
  */
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDelegateNode, int, Val, class AMyNodeActor*, Who);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDelegateNode, float, Val, class AMyNodeActor*, Who);
+
+USTRUCT(BlueprintType)
+struct FSubData
+{
+	GENERATED_BODY()
+
+	
+	FSubData()
+	{
+		SubNode = nullptr;
+		SubType = false;
+		SubValue = 0;
+	};
+	
+	
+	FSubData(AMyNodeActor* Sub, bool Type, int Val = 0)
+		: SubNode(Sub), SubType(Type), SubValue(Val)
+	{};
+
+	AMyNodeActor* SubNode;
+	bool SubType;
+	int SubValue;
+	
+};
 
 class UShapeComponent;
 class AMyNetwork;
@@ -46,54 +71,63 @@ class WILDWORLD_API AMyNodeActor : public AActor
 
 	friend class AMyNetwork;
 
-public:	
+
+#pragma region AuxiliaryLogic
+
+//public:	
 	// Sets default values for this actor's properties
 	AMyNodeActor();
 
 	
+
+protected:
+	
+	virtual void BeginPlay() override;
+
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* Mesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UShapeComponent* Trigger;
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-	FDelegateNode SubDel;
-	 
+	//TArray<AActor*> ArrayNodeOnTheWorld;
+	
 	UMaterialInstanceDynamic* DynMater;
 
+
+#pragma endregion 
+
+	FDelegateNode SubDel;
 	
-	//TArray<AMyNodeActor*> OnMeSubscription;
-	//TArray<AMyNodeActor*> ISubscription;
-
-	TArray< std::pair<AMyNodeActor*, bool>> OnMeSubscription;
-
-	TMap<AMyNodeActor*, std::pair<bool, int>> ISubscription;
-
-
-	// event for the collision,
+	// функция для подписки 
 	UFUNCTION()
-	void BroadcastEvents(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	void SubscribeOnMe(AMyNodeActor* NewSubNode, bool MetKey);
-
-	void UnSubscribeOnMe(AMyNodeActor* NewSubNode);
+	void SumEvent(float val, AMyNodeActor* who);
 
 	// функция для подписки 
 	UFUNCTION()
-	void SumEvent(int val, AMyNodeActor* who);
+	void CounterEvent(float val, AMyNodeActor* who);
 
+	// event for the collision,
 	UFUNCTION()
-	void CallEvent(int val, AMyNodeActor* who);
+	void BrotcastEvents(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	void SubscribeOnMe(AMyNodeActor* NewSubNode);
+
+	void UnSubscribeOnMe(AMyNodeActor* NewSubNode);
 	
 #pragma region Events
 
+	// Те на кого я подписан
+	//TMap<AMyNodeActor*, Chaos::Pair<bool, float>> MySubscription1;
+
+	TArray<FSubData> MySubscription;
 	
-	void BroadcastEventsAllSubs(); 
+	//TArray<AMyNodeActor*> MySubscription;
+
+	//TArray<AMyNodeActor*> ISubscription;
+
+	void BroatcastEvectsAllSubs(); 
 
 	void EventSubscribeOnNode(); 
 	
@@ -102,8 +136,8 @@ protected:
 	AMyNodeActor* CreateAndSubscribeNewNode(); 
 
 	// Мб пригодиться
-	UFUNCTION()
-	void Inaction(){};
+	UFUNCTION(BlueprintCallable)
+	virtual void Inaction(){};
 	
 #pragma endregion 
 
