@@ -7,9 +7,6 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/ActorComponent.h"
 
-#include "Chaos/Pair.h"
-
-
 #include "MyNodeActor.generated.h"
 
 /*
@@ -37,6 +34,17 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDelegateNode, float, Val, class AMyNodeActor*, Who);
 
+class UShapeComponent;
+class AMyNetwork;
+
+
+UENUM(BlueprintType)
+enum class ESubType : uint8
+{
+	Sum = 0,
+	Counter = 1,
+};
+
 USTRUCT(BlueprintType)
 struct FSubData
 {
@@ -46,23 +54,27 @@ struct FSubData
 	FSubData()
 	{
 		SubNode = nullptr;
-		SubType = false;
+		SubType = ESubType::Sum;
 		SubValue = 0;
 	};
 	
 	
-	FSubData(AMyNodeActor* Sub, bool Type, int Val = 0)
+	FSubData(AMyNodeActor* Sub, ESubType Type, int Val = 0)
 		: SubNode(Sub), SubType(Type), SubValue(Val)
 	{};
 
 	AMyNodeActor* SubNode;
-	bool SubType;
+	ESubType SubType;
 	int SubValue;
+
+	bool operator == (FSubData a)
+	{
+		return this->SubNode == a.SubNode;
+	}
 	
 };
 
-class UShapeComponent;
-class AMyNetwork;
+
 
 UCLASS()
 class WILDWORLD_API AMyNodeActor : public AActor
@@ -109,12 +121,12 @@ protected:
 
 	// event for the collision,
 	UFUNCTION()
-	void BrotcastEvents(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	void OverlapBrotcastEvents(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	void SubscribeOnMe(AMyNodeActor* NewSubNode);
+	void SubscribeOnMe(AMyNodeActor* NewSubNode, ESubType SubType);
 
-	void UnSubscribeOnMe(AMyNodeActor* NewSubNode);
+	void UnSubscribeOnMe(AMyNodeActor* NewSubNode, ESubType SubType);
 	
 #pragma region Events
 
@@ -129,9 +141,9 @@ protected:
 
 	void BroatcastEvectsAllSubs(); 
 
-	void EventSubscribeOnNode(); 
+	void SubscribeOnNode(); 
 	
-	void UnSubscribe(AMyNodeActor* NewSubNode); 
+	void UnSubscribe(); 
 	
 	AMyNodeActor* CreateAndSubscribeNewNode(); 
 
