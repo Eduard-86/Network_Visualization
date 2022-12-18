@@ -108,7 +108,7 @@ void AWildWorldCharacter::MoveForward(float Value)
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, Direction.ToString());
+		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, Direction.ToString());
 
 		AddMovementInput(Direction, Value);
 	}
@@ -125,7 +125,7 @@ void AWildWorldCharacter::MoveRight(float Value)
 		// get right vector 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, Direction.ToString());
+		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, Direction.ToString());
 		
 		// add movement in that direction
 		AddMovementInput(Direction, Value);

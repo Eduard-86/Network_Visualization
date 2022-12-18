@@ -85,23 +85,33 @@ void AMyNodeActor::SubscribeOnMe(AMyNodeActor* NewSubNode, ESubType SubType)
 {
 	check(NewSubNode);
 
-	UObject* IsFindObj = *SubDel.GetAllObjects().FindByPredicate(
-		[&](UObject* SubData)
-		{
-			AMyNodeActor* IsFind = Cast<AMyNodeActor>(SubData);
-
-			if (IsFind)
+	 int32 TempIndex = SubDel.GetAllObjects().Find(NewSubNode);
+	
+	/*
+	UObject* IsFindObj = nullptr;
+	
+	if(TempIndex)
+	{
+		IsFindObj = *SubDel.GetAllObjects().FindByPredicate(
+			[&](UObject* SubData)
 			{
-				return IsFind == NewSubNode;
-			}
-			else
-			{
-				check(IsFind);
-				return false;
-			}
-		});
+				AMyNodeActor* IsFind = Cast<AMyNodeActor>(SubData);
 
-	if(!IsFindObj)
+				if (IsFind)
+				{
+					return IsFind == NewSubNode;
+				}
+				else
+				{
+					//check(IsFind);
+					return false;
+				}
+			});
+	}
+	*/
+	
+
+	if(TempIndex == -1)
 	{
 		switch (SubType)
 		{
@@ -109,17 +119,20 @@ void AMyNodeActor::SubscribeOnMe(AMyNodeActor* NewSubNode, ESubType SubType)
 			{
 				SubDel.AddDynamic(NewSubNode, &AMyNodeActor::SumEvent);
 				//MySubscription.Emplace(FSubData(NewSubNode, ESubType::Sum, 0));
+				break;
 			}
 
 			case ESubType::Counter:
 			{
 				SubDel.AddDynamic(NewSubNode, &AMyNodeActor::CounterEvent);
 				//MySubscription.Emplace(FSubData(NewSubNode, ESubType::Counter, 0));
+				break;
 			}
 
 			default:
 			{
 				check(false);
+				break;
 			}
 		}
 	}
@@ -165,16 +178,19 @@ void AMyNodeActor::UnSubscribeOnMe(AMyNodeActor* NewSubNode, ESubType SubType)
 			case ESubType::Sum:
 			{
 				SubDel.RemoveDynamic(NewSubNode, &AMyNodeActor::SumEvent);
+				break;
 			}
 			case ESubType::Counter:
 			{
 				SubDel.RemoveDynamic(NewSubNode, &AMyNodeActor::CounterEvent);
+				break;
 			}
 
 			default:
 			{
 				//TODO make something error report 
 				check(false);
+				break;
 			}
 		}
 	}
@@ -275,7 +291,7 @@ void AMyNodeActor::SubscribeOnNode()
 
 	
 
-	if (my && del)
+	if (!(my + del))
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, 
 			TEXT("Ноде пора на помойку а не подписки подписывать"));
@@ -301,7 +317,7 @@ void AMyNodeActor::SubscribeOnNode()
 		{
 			int32 indexmysub_nei = indexsusa_nei == mysub_nei ? indexsusa_nei - 1 : indexsusa_nei;
 
-			newsub = newsub->MySubscription[indexmysub_nei].SubNode;
+			newsub = Cast<AMyNodeActor, UObject>(newsub->SubDel.GetAllObjects()[indexmysub_nei]);
 			
 			//newsub = newsub->ISubscription[indexmysub_nei];
 
@@ -311,7 +327,7 @@ void AMyNodeActor::SubscribeOnNode()
 		{
 			int32 inxdel = indexsusa_nei - mysub_nei;
 
-			newsub = Cast<AMyNodeActor, UObject>(newsub->SubDel.GetAllObjects()[inxdel]);
+			newsub = newsub->MySubscription[inxdel].SubNode;
 
 			//newsub = newsub->MySubscription[inxdel];
 			
@@ -323,7 +339,7 @@ void AMyNodeActor::SubscribeOnNode()
 	{
 		int32 inxdel = indexsusa - my;
 
-		newsub = Cast<AMyNodeActor, UObject>(newsub->SubDel.GetAllObjects()[inxdel]);
+		newsub = Cast<AMyNodeActor, UObject>(SubDel.GetAllObjects()[inxdel]);
 
 		//int32 mysub_nei = newsub->ISubscription.Num();
 		int32 mysub_nei = newsub->SubDel.GetAllObjects().Num();
@@ -338,7 +354,7 @@ void AMyNodeActor::SubscribeOnNode()
 
 			//newsub = newsub->ISubscription[indexmysub_nei];
 
-			newsub = newsub->MySubscription[indexmysub_nei].SubNode;
+			newsub = Cast<AMyNodeActor, UObject>(newsub->SubDel.GetAllObjects()[indexmysub_nei]);
 
 			check(newsub);
 		}
@@ -348,8 +364,8 @@ void AMyNodeActor::SubscribeOnNode()
 
 			//newsub = newsub->MySubscription[inxdel];
 
-			newsub = Cast<AMyNodeActor, UObject>(newsub->SubDel.GetAllObjects()[inxdel]);
-
+			newsub = newsub->MySubscription[inxdel].SubNode;
+			
 			check(newsub);
 		}
 
@@ -406,14 +422,17 @@ void AMyNodeActor::UnSubscribe()
 	{
 		int32 RandNodeIndex = FMath::Rand() % size;
 
-		MySubscription[RandNodeIndex].SubNode->UnSubscribeOnMe(this, MySubscription[RandNodeIndex].SubType);
+		FSubData TempSub = MySubscription[RandNodeIndex];
+			
+		TempSub.SubNode->UnSubscribeOnMe(this, MySubscription[RandNodeIndex].SubType);
 
-		MySubscription.Remove(MySubscription[RandNodeIndex]);
+		MySubscription.Remove(TempSub);
 
 	}
 	else
 	{
-		check(size);
+		// Узел небыл ни на кого подписан
+		//check(size);
 	}
 }
 
