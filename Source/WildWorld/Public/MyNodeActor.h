@@ -127,6 +127,11 @@ protected:
 	void SubscribeOnMe(AMyNodeActor* NewSubNode, ESubType SubType);
 
 	void UnSubscribeOnMe(AMyNodeActor* NewSubNode, ESubType SubType);
+
+	bool IsEmpty()
+	{
+		return !(SubDel.GetAllObjects().Num() || MySubscription.Num());
+	};
 	
 #pragma region Events
 

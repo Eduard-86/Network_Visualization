@@ -87,9 +87,9 @@ protected:
 	
 	TArray<AMyNodeActor*> ArrayNodeOnTheWorld;
 
-	TArray<AMyNodeActor*> ArrayNodes;
+	//TArray<AMyNodeActor*> ArrayNodes;
 	
-	TArray<AMyNodeActor*> ArrayNewNodes;
+	//TArray<AMyNodeActor*> ArrayNewNodesNotAlone;
 
 	FTimerHandle TimerHandle;
 

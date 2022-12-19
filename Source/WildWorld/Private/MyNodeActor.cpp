@@ -87,8 +87,15 @@ void AMyNodeActor::SubscribeOnMe(AMyNodeActor* NewSubNode, ESubType SubType)
 
 	 int32 TempIndex = SubDel.GetAllObjects().Find(NewSubNode);
 	
+	
 	/*
+	
+	int32 TempIndex = SubDel.GetAllObjects().Num();
+	
 	UObject* IsFindObj = nullptr;
+	
+
+		//Ошибка тут была изза разыминования указатеkя на nullptr
 	
 	if(TempIndex)
 	{
@@ -233,7 +240,7 @@ void AMyNodeActor::SumEvent(float val, AMyNodeActor* who)
 	FString Masage("Event type - 'Sum'\nI cach ! - " + GetValueStr + " from "
 		+ who->GetName() + "/nMy all back about this Node - " + AllSumStr);
 
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, Masage);
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, Masage);
 
 	// set random color on the "colorval" property
 	DynMater->SetVectorParameterValue("ColorVal", FLinearColor::MakeRandomColor());
@@ -268,7 +275,7 @@ void AMyNodeActor::CounterEvent(float val, AMyNodeActor* who)
 	FString Masage("Event type - 'Counter' event catch from"+ who->GetName() 
 		+ "/nMy all back about this Node - " + AllSumStr);
 
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, Masage);
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, Masage);
 
 	// set random color on the "colorval" property
 	DynMater->SetVectorParameterValue("ColorVal", FLinearColor::MakeRandomColor());
