@@ -383,42 +383,45 @@ void AMyNodeActor::SubscribeOnNode()
 		check(false);
 	}
 
-	
-	// Проверка на подписку, неподписан ли уже 
-	if(
-		FSubData* IsFind = MySubscription.FindByPredicate(
-			[&](FSubData SubData)
-			{
-				return SubData.SubNode == newsub;
-			})
-		)
+	if(newsub != this)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("Узел был в подписках!"));
-		return;
-	}
+		// Проверка на подписку, неподписан ли уже 
+		if (
+			FSubData* IsFind = MySubscription.FindByPredicate(
+				[&](FSubData SubData)
+				{
+					return SubData.SubNode == newsub;
+				})
+			)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red,
+				TEXT("I subscripted on this node!"));
+			return;
+		}
 
-	/*
-	if(SubDel.GetAllObjects().Find(newsub))
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("Мы были подписаны на узел!"));
-		return;
-	}*/
+		// Ура подписка удолась !!!
 
-	// Ура подписка удолась !!!
+		if (FMath::Rand() % 2 == 0)
+		{
+			newsub->SubscribeOnMe(this, ESubType::Counter);
 
-	if(FMath::Rand() % 2 == 0)
-	{
-		newsub->SubscribeOnMe(this, ESubType::Counter);
-		
-		MySubscription.Emplace(FSubData(newsub, ESubType::Counter));
-		
+			MySubscription.Emplace(FSubData(newsub, ESubType::Counter));
+
+		}
+		else
+		{
+			newsub->SubscribeOnMe(this, ESubType::Sum);
+
+			MySubscription.Emplace(FSubData(newsub, ESubType::Sum));
+		}
 	}
 	else
 	{
-		newsub->SubscribeOnMe(this, ESubType::Sum);
-		
-		MySubscription.Emplace(FSubData(newsub, ESubType::Sum));
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red,
+			TEXT("Try subscription on my self!"));
+		return;
 	}
+	
 }
 
 void AMyNodeActor::UnSubscribe()
