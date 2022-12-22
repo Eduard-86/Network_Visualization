@@ -80,7 +80,6 @@ void AMyNodeActor::OverlapBrotcastEvents(UPrimitiveComponent* OverlappedComponen
 
 }
 
-
 void AMyNodeActor::SubscribeOnMe(AMyNodeActor* NewSubNode, ESubType SubType)
 {
 	check(NewSubNode);
@@ -217,11 +216,12 @@ void AMyNodeActor::SumEvent(float val, AMyNodeActor* who)
 		{
 			return SubData.SubNode == who;
 		});
-
 	
 	if(IsFind)
 	{
 		IsFind->SubValue = IsFind->SubValue + val;
+
+		SumEventValue += IsFind->SubValue;
 	}
 	else
 	{
@@ -260,6 +260,8 @@ void AMyNodeActor::CounterEvent(float val, AMyNodeActor* who)
 	if (IsFind)
 	{
 		IsFind->SubValue++;
+		
+		CounterEventValue++;
 	}
 	else
 	{
@@ -399,7 +401,7 @@ void AMyNodeActor::SubscribeOnNode()
 			return;
 		}
 
-		// Ура подписка удолась !!!
+		// Ура подписка удалась !!!
 
 		if (FMath::Rand() % 2 == 0)
 		{

@@ -194,7 +194,7 @@ void AMyNetwork::WorkTick()
 		{
 			ArrayNodeOnTheWorld[i]->UnSubscribe();
 
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow ,
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red ,
 				FString("Node - " + ArrayNodeOnTheWorld[i]->GetName() + " UnSubscribe"));
 		}
 		else if (RandIndex <= perCreatandSub)

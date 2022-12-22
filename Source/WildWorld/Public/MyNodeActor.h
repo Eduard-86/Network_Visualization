@@ -101,11 +101,15 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UShapeComponent* Trigger;
-
-	//TArray<AActor*> ArrayNodeOnTheWorld;
 	
 	UMaterialInstanceDynamic* DynMater;
 
+	// Value all events Sums
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float SumEventValue = 0;
+	// Value all events Counters
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float CounterEventValue = 0;
 
 #pragma endregion 
 
@@ -121,8 +125,9 @@ protected:
 
 	// event for the collision,
 	UFUNCTION()
-	void OverlapBrotcastEvents(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void OverlapBrotcastEvents(UPrimitiveComponent* OverlappedComponent, 
+	AActor* OtherActor,	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, 
+	bool bFromSweep, const FHitResult& SweepResult);
 
 	void SubscribeOnMe(AMyNodeActor* NewSubNode, ESubType SubType);
 
