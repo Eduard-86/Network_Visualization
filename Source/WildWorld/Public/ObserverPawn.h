@@ -15,6 +15,9 @@ public:
 	// Sets default values for this pawn's properties
 	AObserverPawn();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int SpeedMultiplier;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -26,4 +29,12 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	void MoveForward(float val);
+	void MoveRight(float val);
+
+	void LookUp(float val);
+	void TurnAround(float val);
+	
+	void MoveUp(float val);
+		
 };

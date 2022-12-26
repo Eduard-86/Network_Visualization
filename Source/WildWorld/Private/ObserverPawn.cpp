@@ -2,6 +2,7 @@
 
 
 #include "ObserverPawn.h"
+#include "Components/InputComponent.h"
 
 // Sets default values
 AObserverPawn::AObserverPawn()
@@ -30,5 +31,58 @@ void AObserverPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	PlayerInputComponent->BindAxis("MoveForward", this, &AObserverPawn::MoveForward );
+	PlayerInputComponent->BindAxis("MoveRight", this, &AObserverPawn::MoveRight );
+	PlayerInputComponent->BindAxis("LookUp", this, &AObserverPawn::LookUp);
+	PlayerInputComponent->BindAxis("Turn", this, &AObserverPawn::TurnAround);
+	PlayerInputComponent->BindAxis("MoveUp", this, &AObserverPawn::MoveUp);
+}
+
+void AObserverPawn::MoveForward(float val)
+{
+	if(val)
+	{
+		// also for characters
+		//AddMovementInput(GetActorForwardVector(), val);
+
+		SetActorLocation(GetActorLocation() + (GetActorForwardVector() * (val * SpeedMultiplier)));
+	}
+}
+
+
+void AObserverPawn::MoveRight(float val)
+{
+	if (val)
+	{
+		SetActorLocation(GetActorLocation() + (GetActorRightVector() * (val * SpeedMultiplier)));
+	}
+}
+
+void AObserverPawn::LookUp(float val)
+{
+	if(val)
+	{
+		FRotator TempRot = GetActorRotation();
+		TempRot.Pitch += ( -1 * val );
+		SetActorRotation(TempRot);
+	}
+}
+
+void AObserverPawn::TurnAround(float val)
+{
+	if(val)
+	{
+		FRotator TempRot = GetActorRotation();
+		TempRot.Yaw += val;
+		SetActorRotation(TempRot);
+	}
+}
+
+void AObserverPawn::MoveUp(float val)
+{
+	if (val)
+	{
+		SetActorLocation(GetActorLocation() + (GetActorUpVector() * (val * SpeedMultiplier)));
+	}
 }
 
