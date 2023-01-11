@@ -170,7 +170,9 @@ void AMyNetwork::WorkTick()
 	}
 
 	
-
+	/**
+	 * Events calling
+	 */
 	for(int i = 0; i < ArrayNodeOnTheWorld.Num(); i++)
 	{
 		int32 RandIndex = FMath::Rand() % 100;
@@ -199,9 +201,8 @@ void AMyNetwork::WorkTick()
 		}
 		else if (RandIndex <= perCreatandSub)
 		{
-			// Перенести этот мусор в ноду
-
-			//AMyNodeActor* NewNode = ArrayNodeOnTheWorld[TickCounter]->CreateAndSubscribeNewNode();
+			// Перенести этот мусор в ноду, но пока оставим ибо атомарность 
+			
 			AMyNodeActor* NewNode = Cast<AMyNodeActor>(World->SpawnActor(ComponentClass));
 
 			if (FMath::Rand() % 2 == 0)
@@ -225,6 +226,8 @@ void AMyNetwork::WorkTick()
 			int32 CounterSub = ArrayNodeOnTheWorld[i]->MySubscription.Num();
 
 			FVector PerentLocation = ArrayNodeOnTheWorld[i]->GetActorLocation();
+
+			//NewNode->SetActorLocation()
 
 			NewNode->SetActorLocation(FVector(
 				PerentLocation.X + (150 + (FMath::Rand() % SettiStruct.EpsilonLocation)),
@@ -284,93 +287,6 @@ void AMyNetwork::WorkTick()
 	
 	
 	////////////////////////////////////////
-	
-	/*
-	
-	if(ArrayNodeOnTheWorld.Num() - 1 < TickCounter)
-	{
-		TickCounter = 0;
-	}
-
-	
-
-	int32 RandIndex = FMath::Rand() % 100;
-
-	if (RandIndex <= perCallEvet)
-	{
-		ArrayNodeOnTheWorld[TickCounter]->BroatcastEvectsAllSubs();
-	}
-	else if (RandIndex <= perSubscribeOnNode)
-	{
-		ArrayNodeOnTheWorld[TickCounter]->SubscribeOnNode();
-	}
-	else if (RandIndex <= perUnSubscribe)
-	{
-		ArrayNodeOnTheWorld[TickCounter]->UnSubscribe();
-	}
-	else if (RandIndex <= perCreatandSub)
-	{
-		// Перенести этот мусор в ноду
-
-		UWorld* World = GetWorld();
-		
-		//AMyNodeActor* NewNode = ArrayNodeOnTheWorld[TickCounter]->CreateAndSubscribeNewNode();
-		AMyNodeActor* NewNode = Cast<AMyNodeActor>(World->SpawnActor(ComponentClass));
-
-		if (FMath::Rand() % 2 == 0)
-		{
-			NewNode->SubscribeOnMe(ArrayNodeOnTheWorld[TickCounter], ESubType::Counter);
-
-			ArrayNodeOnTheWorld[TickCounter]->MySubscription.Emplace(FSubData(NewNode, ESubType::Counter));
-
-		}
-		else
-		{
-			NewNode->SubscribeOnMe(ArrayNodeOnTheWorld[TickCounter], ESubType::Sum);
-
-			ArrayNodeOnTheWorld[TickCounter]->MySubscription.Emplace(FSubData(NewNode, ESubType::Sum));
-		}
-
-		////////////////////////////////
-
-		ArrayNodeOnTheWorld.Add(NewNode);
-
-		int32 CounterSub = ArrayNodeOnTheWorld[TickCounter]->MySubscription.Num();
-
-		FVector PerentLocation = ArrayNodeOnTheWorld[TickCounter]->GetActorLocation();
-		
-		NewNode->SetActorLocation(FVector(
-			PerentLocation.X + (150 + (FMath::Rand() % SettiStruct.EpsilonLocation)),
-			PerentLocation.Y + (FMath::Rand() % SettiStruct.EpsilonLocation),
-			(CounterSub * PerentLocation.Z +  (FMath::Rand() % SettiStruct.EpsilonLocation))));
-		
-		
-		//NewNode->SetActorLocation(FVector(
-		//	(150 * TickCounter) + (10 * ((FMath::Rand() % SettiStruct.EpsilonLocation) + 1)),
-		//	1 + (10 * ((FMath::Rand() % SettiStruct.EpsilonLocation) + 1)),
-		//	300 + (10 * ((FMath::Rand() % SettiStruct.EpsilonLocation) + 1))));
-		
-		
-		int32 TempIndPerent = TickCounter;
-		int32 TempIndChild = ArrayNodeOnTheWorld.Num() - 1;
-
-		
-		DrawDebugLine(World, ArrayNodeOnTheWorld[TempIndChild]->GetActorLocation(),
-			ArrayNodeOnTheWorld[TempIndPerent]->GetActorLocation(), FColor::Red,
-			false, 999999, 2, 3.f);
-		
-	}
-	else if (RandIndex <= perInaction)
-	{
-		ArrayNodeOnTheWorld[TickCounter]->Inaction();
-	}
-
-	TickCounter++;
-
-	return;
-	*/
-
-	//////////////////////
 
 	/*
 	UWorld* World = GetWorld();

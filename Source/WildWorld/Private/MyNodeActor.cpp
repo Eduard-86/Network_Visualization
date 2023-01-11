@@ -22,6 +22,9 @@ AMyNodeActor::AMyNodeActor()
 	//Trigger = CreateDefaultSubobject<USphereComponent>(TEXT("TriggerSphere"));
 	//Trigger->SetupAttachment(Mesh);
 	
+	HeightHeirLocation = FMath::Rand() % 200 + 100;
+	WidthHeirLocation = FMath::Rand() % 200 + 100;
+
 }
 
 // Called when the game starts or when spawned

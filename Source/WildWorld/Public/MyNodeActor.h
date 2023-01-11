@@ -161,7 +161,17 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	virtual void Inaction(){};
 	
-#pragma endregion 
+#pragma endregion
+
+#pragma region Visual
+
+protected:
+
+	float HeightHeirLocation;
+
+	float WidthHeirLocation;
+
+#pragma endregion
 
 };
 
