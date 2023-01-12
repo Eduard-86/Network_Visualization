@@ -157,7 +157,7 @@ protected:
 	
 	AMyNodeActor* CreateAndSubscribeNewNode(); 
 
-	// ћб пригодитьс€
+	// for future
 	UFUNCTION(BlueprintCallable)
 	virtual void Inaction(){};
 	

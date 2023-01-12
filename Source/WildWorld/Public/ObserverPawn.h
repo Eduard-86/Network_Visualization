@@ -16,7 +16,7 @@ public:
 	AObserverPawn();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int SpeedMultiplier;
+	int SpeedMultiplier = 0;
 
 protected:
 	// Called when the game starts or when spawned

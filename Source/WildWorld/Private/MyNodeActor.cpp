@@ -22,8 +22,8 @@ AMyNodeActor::AMyNodeActor()
 	//Trigger = CreateDefaultSubobject<USphereComponent>(TEXT("TriggerSphere"));
 	//Trigger->SetupAttachment(Mesh);
 	
-	HeightHeirLocation = FMath::Rand() % 200 + 100;
-	WidthHeirLocation = FMath::Rand() % 200 + 100;
+	HeightHeirLocation = 100 + FMath::Rand() % 200;
+	WidthHeirLocation = 100 + FMath::Rand() % 200;
 
 }
 
@@ -88,37 +88,6 @@ void AMyNodeActor::SubscribeOnMe(AMyNodeActor* NewSubNode, ESubType SubType)
 	check(NewSubNode);
 
 	 int32 TempIndex = SubDel.GetAllObjects().Find(NewSubNode);
-	
-	
-	/*
-	
-	int32 TempIndex = SubDel.GetAllObjects().Num();
-	
-	UObject* IsFindObj = nullptr;
-	
-
-		//Ошибка тут была изза разыминования указатеkя на nullptr
-	
-	if(TempIndex)
-	{
-		IsFindObj = *SubDel.GetAllObjects().FindByPredicate(
-			[&](UObject* SubData)
-			{
-				AMyNodeActor* IsFind = Cast<AMyNodeActor>(SubData);
-
-				if (IsFind)
-				{
-					return IsFind == NewSubNode;
-				}
-				else
-				{
-					//check(IsFind);
-					return false;
-				}
-			});
-	}
-	*/
-	
 
 	if(TempIndex == -1)
 	{
@@ -157,12 +126,6 @@ void AMyNodeActor::SubscribeOnMe(AMyNodeActor* NewSubNode, ESubType SubType)
 void AMyNodeActor::UnSubscribeOnMe(AMyNodeActor* NewSubNode, ESubType SubType)
 {
 	check(NewSubNode);
-	/*
-	FSubData* IsFind = MySubscription.FindByPredicate(
-		[&](FSubData SubData)
-		{
-			return SubData.SubNode == NewSubNode;
-		});*/
 
 	UObject* IsFindObj = *SubDel.GetAllObjects().FindByPredicate(
 		[&](UObject* SubData)
@@ -301,8 +264,6 @@ void AMyNodeActor::SubscribeOnNode()
 	int32 my = MySubscription.Num();
 	int32 del = SubDel.GetAllObjects().Num();
 
-	
-
 	if (!(my + del))
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, 
@@ -384,13 +345,13 @@ void AMyNodeActor::SubscribeOnNode()
 	}
 	else
 	{
-		// ошибка а размере массивов
+		// false in array size 
 		check(false);
 	}
 
 	if(newsub != this)
 	{
-		// Проверка на подписку, неподписан ли уже 
+		// сheck on sub, subscription this node on newnode earlier ?
 		if (
 			FSubData* IsFind = MySubscription.FindByPredicate(
 				[&](FSubData SubData)
@@ -404,8 +365,7 @@ void AMyNodeActor::SubscribeOnNode()
 			return;
 		}
 
-		// Ура подписка удалась !!!
-
+		// Subscription successful !!!
 		if (FMath::Rand() % 2 == 0)
 		{
 			newsub->SubscribeOnMe(this, ESubType::Counter);
@@ -453,11 +413,11 @@ void AMyNodeActor::UnSubscribe()
 
 AMyNodeActor* AMyNodeActor::CreateAndSubscribeNewNode()
 {
+	//todo
+	// На данный момент работу этого ивента выполняет менеджер
+	// нужно переработать 
+
 	/*
-		При создании ноды смещаем её на 200X
-		Не нехуя, этим займётся менеджер
-	 */
-	
 	UWorld* World = GetWorld();
 
 	if (World)
@@ -473,107 +433,8 @@ AMyNodeActor* AMyNodeActor::CreateAndSubscribeNewNode()
 	}
 
 	check(World);
+	*/
 	
 	return nullptr;
 }
-
-/*
-void AMyNodeActor::EventSubscribeOnNode()
-{
-
-	int32 my = ISubscription.Num();
-	int32 del = OnMeSubscription.Num();
-
-	if (my && del)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("Ноде пора на помойку а не подписки подписывать"));
-		return;
-	}
-
-	int32 indexsusa = FMath::Rand() % (my + del);
-
-	AMyNodeActor* newsub = nullptr;
-
-	if (indexsusa < my && my != 0)
-	{
-		
-		int32 indexmysub = indexsusa == my ? indexsusa - 1 : indexsusa;
-
-		newsub = ISubscription[indexmysub];
-
-		int32 mysub_nei = newsub->ISubscription.Num();
-		int32 del_nei = newsub->OnMeSubscription.Num();
-		int32 indexsusa_nei = FMath::Rand() % (mysub_nei + del_nei);
-
-		if (indexsusa_nei < mysub_nei && mysub_nei != 0)
-		{
-			int32 indexmysub_nei = indexsusa_nei == mysub_nei ? indexsusa_nei - 1 : indexsusa_nei;
-			
-			newsub = newsub->ISubscription[indexmysub_nei];
-
-			check(newsub);
-		}
-		else if (del_nei != 0)
-		{
-			int32 inxdel = indexsusa_nei - mysub_nei;
-
-			newsub = newsub->OnMeSubscription[inxdel];
-
-			check(newsub);
-		}
-	
-	}
-	else if (del != 0)
-	{
-		int32 inxdel = indexsusa - my;
-		
-		newsub = OnMeSubscription[inxdel];
-
-		int32 mysub_nei = newsub->ISubscription.Num();
-		int32 del_nei = newsub->OnMeSubscription.Num();
-		int32 indexsusa_nei = FMath::Rand() % (mysub_nei + del_nei);
-
-		if (indexsusa_nei < mysub_nei && mysub_nei != 0)
-		{
-			int32 indexmysub_nei = indexsusa_nei == mysub_nei ? indexsusa_nei - 1 : indexsusa_nei;
-
-			newsub = newsub->ISubscription[indexmysub_nei];
-
-			check(newsub);
-		}
-		else if (del_nei != 0)
-		{
-			inxdel = indexsusa_nei - mysub_nei;
-
-			newsub = newsub->OnMeSubscription[inxdel];
-
-			check(newsub);
-		}
-		
-	}
-	
-	
-	if (OnMeSubscription.Find(newsub))
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("Узел был в подписках!"));
-		return;
-	}
-	
-
-	if (ISubscription.Find(newsub))
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("Мы были подписаны на узел!"));
-		return;
-	}
-
-	// Ура подписка удолась !!!
-
-	ISubscription.Add(newsub);
-
-	newsub->SubscribeOnMe(this);
-	
-}
-*/
-
-#pragma endregion 
 

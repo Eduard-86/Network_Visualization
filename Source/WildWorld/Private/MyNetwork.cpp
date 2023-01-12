@@ -18,28 +18,6 @@ AMyNetwork::AMyNetwork()
 void AMyNetwork::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//////////////////////////// ѕриберусь /////////////////////////////////
-	///	AMyNodeActor* NewNode1 = Cast<AMyNodeActor>(World->SpawnActor(ComponentClass)); - получение мира
-	///	
-	/// NewNode1->SetActorLocation(FVector(1 + (10 * ((FMath::Rand() % SettiStruct.EpsilonLocation) + 1)), - изменение локации
-	///		(10 * ((FMath::Rand() % SettiStruct.EpsilonLocation) + 1)),
-	///		300 + (10 * ((FMath::Rand() % SettiStruct.EpsilonLocation) + 1))));
-	///
-	///	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green,
-	///		FString::FromInt(FMath::Rand() % SettiStruct.EpsilonLocation));		-	дебаг масаге
-	///
-	/// DrawDebugLine(World, ArrayNodeOnTheWorld[i - 1]->GetActorLocation(),	-	 дебаг лини€
-	///		ArrayNodeOnTheWorld[i]->GetActorLocation(), FColor::Red, false, 999999, 2, 3.f);
-	///
-	///	GetWorldTimerManager().SetTimer(					- запустить таймер
-	///		TimerHandle, this, & AMyNetwork::CreateEvent,
-	///		SettiStruct.TimerRade, true);
-	///
-	///
-	////////////////////////////////////////////////////////////////
-
-	//StartSimulator();
 }
 
 void AMyNetwork::StartSimulator()
@@ -228,12 +206,27 @@ void AMyNetwork::WorkTick()
 			FVector PerentLocation = ArrayNodeOnTheWorld[i]->GetActorLocation();
 
 			//NewNode->SetActorLocation()
+			int32 CornerAlpha = FMath::Rand() % 320;
 
+			NewNode->SetActorLocation(FVector(
+				PerentLocation.X +
+				FMath::Cos(CornerAlpha) * ArrayNodeOnTheWorld[i]->WidthHeirLocation +
+				(FMath::Rand() % SettiStruct.EpsilonLocation),
+
+				PerentLocation.Y +
+				FMath::Sin(CornerAlpha) * ArrayNodeOnTheWorld[i]->WidthHeirLocation +
+				(FMath::Rand() % SettiStruct.EpsilonLocation),
+
+				PerentLocation.Z + ArrayNodeOnTheWorld[i]->HeightHeirLocation +
+				(FMath::Rand() % SettiStruct.EpsilonLocation)
+			));
+
+			/*
 			NewNode->SetActorLocation(FVector(
 				PerentLocation.X + (150 + (FMath::Rand() % SettiStruct.EpsilonLocation)),
 				PerentLocation.Y + (FMath::Rand() % SettiStruct.EpsilonLocation),
 				(CounterSub * PerentLocation.Z + (FMath::Rand() % SettiStruct.EpsilonLocation))));
-
+				*/
 
 			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan,
 				FString("Node - " + ArrayNodeOnTheWorld[i]->GetName() + " CreatandSub"));
