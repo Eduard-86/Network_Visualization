@@ -32,24 +32,6 @@ void AMyNodeActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	/* Подписка на все узлы на катре
-
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMyNodeActor::StaticClass(), ArrayNodeOnTheWorld );
-
-		for(int i = 0; i < ArrayNodeOnTheWorld.Num(); ++i)
-		{
-			AMyNodeActor* TempPtrNode = Cast<AMyNodeActor>(ArrayNodeOnTheWorld[i]);
-
-			if(TempPtrNode)
-			{
-				if(TempPtrNode != this)
-					TempPtrNode->SubDel.AddDynamic(this, &AMyNodeActor::CallEvent);
-			}
-		}
-
-		Trigger->OnComponentBeginOverlap.AddDynamic(this, &AMyNodeActor::BrotcastEvents);
-	 */
-
 	//Trigger->OnComponentBeginOverlap.AddDynamic(this, &AMyNodeActor::BrotcastEvents);
 
 	Mesh->OnComponentBeginOverlap.AddDynamic(this, &AMyNodeActor::OverlapBrotcastEvents);
@@ -77,9 +59,9 @@ void AMyNodeActor::OverlapBrotcastEvents(UPrimitiveComponent* OverlappedComponen
 	AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	SubDel.Broadcast(FMath::Rand() % 100, this);
+	//SubDel.Broadcast(FMath::Rand() % 100, this);
 
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, *GetName());
+	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, *GetName());
 
 }
 
@@ -191,8 +173,8 @@ void AMyNodeActor::SumEvent(float val, AMyNodeActor* who)
 	}
 	else
 	{
+		// Данная нода ранее подписалась на объект но не сохранила его в массив подписок 'MySubscription'
 		check(false);
-		check("Данная нода ранее подписалась на объект но не сохранила его в массив подписок 'MySubscription'");
 		return;
 	}
 	
@@ -231,8 +213,8 @@ void AMyNodeActor::CounterEvent(float val, AMyNodeActor* who)
 	}
 	else
 	{
+		//Данная нода ранее подписалась на объект но не сохранила его в массив подписок 'MySubscription'
 		check(false);
-		check("Данная нода ранее подписалась на объект но не сохранила его в массив подписок 'MySubscription'");
 		return;
 	}
 
@@ -383,7 +365,7 @@ void AMyNodeActor::SubscribeOnNode()
 	else
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red,
-			TEXT("Try subscription on my self!"));
+			TEXT("Trying  subscription on his self!"));
 		return;
 	}
 	
@@ -406,7 +388,7 @@ void AMyNodeActor::UnSubscribe()
 	}
 	else
 	{
-		// Узел небыл ни на кого подписан
+		// Узел не был ни на кого подписан
 		//check(size);
 	}
 }
