@@ -6,6 +6,8 @@
 #include "DrawDebugHelpers.h"
 #include "TimerManager.h"
 
+DEFINE_LOG_CATEGORY_STATIC(Network, All, All)
+
 // Sets default values
 AMyNetwork::AMyNetwork()
 {
@@ -138,9 +140,13 @@ void AMyNetwork::WorkTick()
 	{
 		if (ArrayNodeOnTheWorld[i]->IsEmpty())
 		{
+			UE_LOG(Network, Error, TEXT("Node - %s it is delete"), *ArrayNodeOnTheWorld[i]->GetName());
+
+			/*
 			FString Masage("Node - " + ArrayNodeOnTheWorld[i]->GetName()+ "it is delete ");
 			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, Masage);
-
+			*/
+			
 			ArrayNodeOnTheWorld[i]->Destroy();
 			
 			ArrayNodeOnTheWorld.RemoveAt(i);
@@ -158,24 +164,35 @@ void AMyNetwork::WorkTick()
 		if (RandIndex <= perCallEvet)
 		{
 			ArrayNodeOnTheWorld[i]->BroatcastEvectsAllSubs();
-			
+
+			UE_LOG(Network, Display, TEXT("Node - %s CallEvent"), *ArrayNodeOnTheWorld[i]->GetName());
+
+			/*
 			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, 
 				FString("Node - " + ArrayNodeOnTheWorld[i]->GetName() + " CallEvent"));
-
+			*/
 		}
 		else if (RandIndex <= perSubscribeOnNode)
 		{
 			ArrayNodeOnTheWorld[i]->SubscribeOnNode();
 
+			UE_LOG(Network, Display, TEXT("Node - %s Subscribe"), *ArrayNodeOnTheWorld[i]->GetName());
+			
+			/*
 			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green,
 				FString("Node - " + ArrayNodeOnTheWorld[i]->GetName() + " Subscribe"));
+			*/
 		}
 		else if (RandIndex <= perUnSubscribe)
 		{
 			ArrayNodeOnTheWorld[i]->UnSubscribe();
 
+			UE_LOG(Network, Display, TEXT("Node - %s UnSubscribe"), *ArrayNodeOnTheWorld[i]->GetName());
+
+			/*
 			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red ,
 				FString("Node - " + ArrayNodeOnTheWorld[i]->GetName() + " UnSubscribe"));
+			*/
 		}
 		else if (RandIndex <= perCreatandSub)
 		{
@@ -228,22 +245,33 @@ void AMyNetwork::WorkTick()
 				(CounterSub * PerentLocation.Z + (FMath::Rand() % SettiStruct.EpsilonLocation))));
 				*/
 
+			UE_LOG(Network, Display, TEXT("Node - %s CreatandSub"), *ArrayNodeOnTheWorld[i]->GetName());
+
+			/*
 			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan,
 				FString("Node - " + ArrayNodeOnTheWorld[i]->GetName() + " CreatandSub"));
-
+			*/
 		}
 		else if (RandIndex <= perInaction)
 		{
 			ArrayNodeOnTheWorld[i]->Inaction();
 
+			UE_LOG(Network, Display, TEXT("Node - %s Inaction"), *ArrayNodeOnTheWorld[i]->GetName());
+
+			/*
 			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Black,
 				FString("Node - " + ArrayNodeOnTheWorld[i]->GetName() + " Inaction"));
+			*/
 		}
 
 		/*
 		 * Сюда нужна задержка 
 		 */
 	}
+
+	UE_LOG(Network, Error, TEXT(
+		"=========================================== Raund end ==========================================="));
+
 
 	// Отрисовка линий 
 	int ArraysCounter;
