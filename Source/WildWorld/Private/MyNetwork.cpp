@@ -8,6 +8,11 @@
 
 DEFINE_LOG_CATEGORY_STATIC(Network, All, All)
 
+/*
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue,
+		FString("Node - " + ArrayNodeOnTheWorld[i]->GetName() + " CallEvent"));
+*/
+
 // Sets default values
 AMyNetwork::AMyNetwork()
 {
@@ -43,7 +48,6 @@ void AMyNetwork::StartSimulator()
 		for (int i = 1; i < start_size; ++i)
 		{
 			 NewNode = Cast<AMyNodeActor>(World->SpawnActor(ComponentClass));
-			
 
 			
 			ArrayNodeOnTheWorld.Add(NewNode);
@@ -62,9 +66,6 @@ void AMyNetwork::StartSimulator()
 				ArrayNodeOnTheWorld[i]->GetActorLocation(), 
 				FColor::Red, false, 2, 2, 3.f);
 
-			//NewNode->SubscribeOnNode(ArrayNodeOnTheWorld[i-1]);
-
-			//NewNode->SubDel.AddDynamic(this, &AMyNodeActor::CallEvent);
 		}
 	}
 
@@ -140,12 +141,7 @@ void AMyNetwork::WorkTick()
 	{
 		if (ArrayNodeOnTheWorld[i]->IsEmpty())
 		{
-			UE_LOG(Network, Error, TEXT("Node - %s it is delete"), *ArrayNodeOnTheWorld[i]->GetName());
-
-			/*
-			FString Masage("Node - " + ArrayNodeOnTheWorld[i]->GetName()+ "it is delete ");
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, Masage);
-			*/
+			UE_LOG(Network, Warning, TEXT("Node - %s it is delete"), *ArrayNodeOnTheWorld[i]->GetName());
 			
 			ArrayNodeOnTheWorld[i]->Destroy();
 			
@@ -166,33 +162,18 @@ void AMyNetwork::WorkTick()
 			ArrayNodeOnTheWorld[i]->BroatcastEvectsAllSubs();
 
 			UE_LOG(Network, Display, TEXT("Node - %s CallEvent"), *ArrayNodeOnTheWorld[i]->GetName());
-
-			/*
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, 
-				FString("Node - " + ArrayNodeOnTheWorld[i]->GetName() + " CallEvent"));
-			*/
 		}
 		else if (RandIndex <= perSubscribeOnNode)
 		{
 			ArrayNodeOnTheWorld[i]->SubscribeOnNode();
 
 			UE_LOG(Network, Display, TEXT("Node - %s Subscribe"), *ArrayNodeOnTheWorld[i]->GetName());
-			
-			/*
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green,
-				FString("Node - " + ArrayNodeOnTheWorld[i]->GetName() + " Subscribe"));
-			*/
 		}
 		else if (RandIndex <= perUnSubscribe)
 		{
 			ArrayNodeOnTheWorld[i]->UnSubscribe();
 
 			UE_LOG(Network, Display, TEXT("Node - %s UnSubscribe"), *ArrayNodeOnTheWorld[i]->GetName());
-
-			/*
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red ,
-				FString("Node - " + ArrayNodeOnTheWorld[i]->GetName() + " UnSubscribe"));
-			*/
 		}
 		else if (RandIndex <= perCreatandSub)
 		{
@@ -238,7 +219,7 @@ void AMyNetwork::WorkTick()
 				(FMath::Rand() % SettiStruct.EpsilonLocation)
 			));
 
-			/*
+			/* old new node location 
 			NewNode->SetActorLocation(FVector(
 				PerentLocation.X + (150 + (FMath::Rand() % SettiStruct.EpsilonLocation)),
 				PerentLocation.Y + (FMath::Rand() % SettiStruct.EpsilonLocation),
@@ -246,22 +227,12 @@ void AMyNetwork::WorkTick()
 				*/
 
 			UE_LOG(Network, Display, TEXT("Node - %s CreatandSub"), *ArrayNodeOnTheWorld[i]->GetName());
-
-			/*
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan,
-				FString("Node - " + ArrayNodeOnTheWorld[i]->GetName() + " CreatandSub"));
-			*/
 		}
 		else if (RandIndex <= perInaction)
 		{
 			ArrayNodeOnTheWorld[i]->Inaction();
 
 			UE_LOG(Network, Display, TEXT("Node - %s Inaction"), *ArrayNodeOnTheWorld[i]->GetName());
-
-			/*
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Black,
-				FString("Node - " + ArrayNodeOnTheWorld[i]->GetName() + " Inaction"));
-			*/
 		}
 
 		/*
@@ -269,11 +240,11 @@ void AMyNetwork::WorkTick()
 		 */
 	}
 
-	UE_LOG(Network, Error, TEXT(
+	// Loop end flag 
+	UE_LOG(Network, Display, TEXT(
 		"=========================================== Raund end ==========================================="));
 
-
-	// Отрисовка линий 
+	// Line print
 	int ArraysCounter;
 
 	for (int i = 0; i < ArrayNodeOnTheWorld.Num(); ++i)

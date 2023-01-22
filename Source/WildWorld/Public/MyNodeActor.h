@@ -106,10 +106,10 @@ protected:
 
 	// Value all events Sums
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	float SumEventValue = 0;
+	float SumAllEventValue = 0;
 	// Value all events Counters
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	float CounterEventValue = 0;
+	float CounterAllEventValue = 0;
 
 #pragma endregion 
 
@@ -137,6 +137,8 @@ protected:
 	{
 		return !(SubDel.GetAllObjects().Num() || MySubscription.Num());
 	};
+
+	//void WidgetAP(float val, )
 	
 #pragma region Events
 

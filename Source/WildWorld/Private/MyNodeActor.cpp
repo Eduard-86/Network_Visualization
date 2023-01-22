@@ -8,7 +8,7 @@
 #include "MyNetwork.h"
 #include "Materials/MaterialInstanceDynamic.h"
 
-
+DEFINE_LOG_CATEGORY_STATIC(Nodes, All, All)
 
 // Sets default values
 AMyNodeActor::AMyNodeActor()
@@ -42,15 +42,6 @@ void AMyNodeActor::BeginPlay()
 	{
 		DynMater->SetVectorParameterValue("ColorVal", FLinearColor::White);
 	}
-
-	bool test = Mesh->OverlapComponent(GetActorLocation(), FQuat(), FCollisionShape());
-
-	if(test)
-	{
-		int i = 0;
-		i -= 20;
-	}
-	
 }
 
 // event for the collision,
@@ -169,7 +160,7 @@ void AMyNodeActor::SumEvent(float val, AMyNodeActor* who)
 	{
 		IsFind->SubValue = IsFind->SubValue + val;
 
-		SumEventValue += IsFind->SubValue;
+		SumAllEventValue += IsFind->SubValue;
 	}
 	else
 	{
@@ -180,7 +171,7 @@ void AMyNodeActor::SumEvent(float val, AMyNodeActor* who)
 	
 
 #pragma region VisyalPrikols
-
+	/*	Old debug message 
 	FString GetValueStr = FString::SanitizeFloat(IsFind->SubValue - val);
 
 	FString AllSumStr = FString::SanitizeFloat(IsFind->SubValue);
@@ -189,7 +180,12 @@ void AMyNodeActor::SumEvent(float val, AMyNodeActor* who)
 		+ who->GetName() + "/nMy all back about this Node - " + AllSumStr);
 
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, Masage);
-
+	*/
+	
+	UE_LOG(Nodes, Display, TEXT(
+		"I - %s\nEvent type - 'Sum'\nI cach - %f\nFrom - %s\nMy all back about this Node - %d"),
+		*this->GetName(), val, *who->GetName(), IsFind->SubValue);
+	
 	// set random color on the "colorval" property
 	DynMater->SetVectorParameterValue("ColorVal", FLinearColor::MakeRandomColor());
 	
@@ -209,7 +205,7 @@ void AMyNodeActor::CounterEvent(float val, AMyNodeActor* who)
 	{
 		IsFind->SubValue++;
 		
-		CounterEventValue++;
+		CounterAllEventValue++;
 	}
 	else
 	{
@@ -219,14 +215,19 @@ void AMyNodeActor::CounterEvent(float val, AMyNodeActor* who)
 	}
 
 #pragma region VisyalPrikols
-
+	/*
 	FString AllSumStr = FString::SanitizeFloat(IsFind->SubValue);
 
 	FString Masage("Event type - 'Counter' event catch from"+ who->GetName() 
 		+ "/nMy all back about this Node - " + AllSumStr);
 
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, Masage);
+	*/
 
+	UE_LOG(Nodes, Display, TEXT(
+		"I - %s\nEvent type - 'Counter'\nFrom - %s\nMy all back about this Node - %d"),
+		*this->GetName(), *who->GetName(), IsFind->SubValue);
+	
 	// set random color on the "colorval" property
 	DynMater->SetVectorParameterValue("ColorVal", FLinearColor::MakeRandomColor());
 
@@ -248,8 +249,9 @@ void AMyNodeActor::SubscribeOnNode()
 
 	if (!(my + del))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, 
-			TEXT("Ноде пора на помойку а не подписки подписывать"));
+		UE_LOG(Nodes, Warning, TEXT(
+			"Node - %s\nTry subscribe on node, but it's time to go to the dump"), *this->GetName());
+		
 		return;
 	}
 
@@ -342,8 +344,8 @@ void AMyNodeActor::SubscribeOnNode()
 				})
 			)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red,
-				TEXT("I subscripted on this node!"));
+			UE_LOG(Nodes, Warning, TEXT(
+				"Node - %s\nSubscripted on this node"), *this->GetName());
 			return;
 		}
 
@@ -364,8 +366,8 @@ void AMyNodeActor::SubscribeOnNode()
 	}
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red,
-			TEXT("Trying  subscription on his self!"));
+		UE_LOG(Nodes, Warning, TEXT(
+			"Node - %s\nTrying  subscription on his self!"), *this->GetName());
 		return;
 	}
 	
@@ -388,6 +390,8 @@ void AMyNodeActor::UnSubscribe()
 	}
 	else
 	{
+		UE_LOG(Nodes, Warning, TEXT(
+			"Node - %s\nTrying unsubscribe but it is dont have any subscribes!"), *this->GetName());
 		// Узел не был ни на кого подписан
 		//check(size);
 	}
