@@ -181,6 +181,8 @@ void AMyNodeActor::SumEvent(float val, AMyNodeActor* who)
 
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, Masage);
 	*/
+
+	WidgetAP(IsFind->SubValue, ESubType::Sum);
 	
 	UE_LOG(Nodes, Display, TEXT(
 		"I - %s\nEvent type - 'Sum'\nI cach - %f\nFrom - %s\nMy all back about this Node - %d"),
@@ -224,6 +226,8 @@ void AMyNodeActor::CounterEvent(float val, AMyNodeActor* who)
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, Masage);
 	*/
 
+	WidgetAP(1, ESubType::Counter);
+	
 	UE_LOG(Nodes, Display, TEXT(
 		"I - %s\nEvent type - 'Counter'\nFrom - %s\nMy all back about this Node - %d"),
 		*this->GetName(), *who->GetName(), IsFind->SubValue);

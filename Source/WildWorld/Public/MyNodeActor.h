@@ -138,7 +138,8 @@ protected:
 		return !(SubDel.GetAllObjects().Num() || MySubscription.Num());
 	};
 
-	//void WidgetAP(float val, )
+	UFUNCTION(BlueprintImplementableEvent)
+	void WidgetAP(float val, ESubType eventtype);
 	
 #pragma region Events
 
