@@ -17,6 +17,7 @@ AMyNodeActor::AMyNodeActor()
 	PrimaryActorTick.bCanEverTick = false;
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
+	Mesh->SetWorldScale3D(FVector(0.2, 0.2, 0.2));
 	Mesh->SetupAttachment(RootComponent);
 
 	//Trigger = CreateDefaultSubobject<USphereComponent>(TEXT("TriggerSphere"));
@@ -40,7 +41,7 @@ void AMyNodeActor::BeginPlay()
 
 	if(DynMater)
 	{
-		DynMater->SetVectorParameterValue("ColorVal", FLinearColor::White);
+		DynMater->SetVectorParameterValue("ColorVal", FLinearColor::Black);
 	}
 }
 
@@ -180,16 +181,37 @@ void AMyNodeActor::SumEvent(float val, AMyNodeActor* who)
 		+ who->GetName() + "/nMy all back about this Node - " + AllSumStr);
 
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, Masage);
+	// set random color on the "colorval" property
+	//DynMater->SetVectorParameterValue("ColorVal", FLinearColor::MakeRandomColor());
 	*/
 
 	WidgetAP(IsFind->SubValue, ESubType::Sum);
 	
+	// set random color on the "colorval" property
+
+	FLinearColor Color;
+	
+	DynMater->GetVectorParameterValue(FName("ColorVal"), Color);
+
+	if(Color.R < 1 || Color.G < 1 || Color.B < 1)
+	{
+		if(Color.R < 1)
+		{
+			DynMater->SetVectorParameterValue("ColorVal", FLinearColor(Color.R + 0.1, Color.G, Color.B ));
+		}
+		else if(Color.G < 1)
+		{
+			DynMater->SetVectorParameterValue("ColorVal", FLinearColor(Color.R, Color.G + 0.1, Color.B ));
+		}
+		else if (Color.G < 1)
+		{
+			DynMater->SetVectorParameterValue("ColorVal", FLinearColor(Color.R, Color.G, Color.B + 0.1));
+		}
+	}
+
 	UE_LOG(Nodes, Display, TEXT(
 		"I - %s\nEvent type - 'Sum'\nI cach - %f\nFrom - %s\nMy all back about this Node - %d"),
 		*this->GetName(), val, *who->GetName(), IsFind->SubValue);
-	
-	// set random color on the "colorval" property
-	DynMater->SetVectorParameterValue("ColorVal", FLinearColor::MakeRandomColor());
 	
 #pragma endregion 
 }
@@ -224,16 +246,24 @@ void AMyNodeActor::CounterEvent(float val, AMyNodeActor* who)
 		+ "/nMy all back about this Node - " + AllSumStr);
 
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, Masage);
+
+	// set random color on the "colorval" property
+	// DynMater->SetVectorParameterValue("ColorVal", FLinearColor::MakeRandomColor());
+	
 	*/
 
-	WidgetAP(1, ESubType::Counter);
+	WidgetAP(IsFind->SubValue, ESubType::Counter);
 	
+	FVector StartScale = Mesh->GetRelativeScale3D();
+	
+	StartScale += FVector(0.05, 0.05, 0.05);
+	
+	Mesh->SetWorldScale3D(StartScale);
+	
+
 	UE_LOG(Nodes, Display, TEXT(
 		"I - %s\nEvent type - 'Counter'\nFrom - %s\nMy all back about this Node - %d"),
 		*this->GetName(), *who->GetName(), IsFind->SubValue);
-	
-	// set random color on the "colorval" property
-	DynMater->SetVectorParameterValue("ColorVal", FLinearColor::MakeRandomColor());
 
 #pragma endregion 
 }

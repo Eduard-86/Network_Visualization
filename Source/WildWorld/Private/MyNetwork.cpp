@@ -240,6 +240,9 @@ void AMyNetwork::WorkTick()
 		 */
 	}
 
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green,
+		FString("NetworckSize - " + FString::FromInt(ArrayNodeOnTheWorld.Num())));
+	
 	// Loop end flag 
 	UE_LOG(Network, Display, TEXT(
 		"=========================================== Raund end ==========================================="));
@@ -276,8 +279,6 @@ void AMyNetwork::WorkTick()
 		}
 	}
 
-	
-	
 	////////////////////////////////////////
 
 	/*
