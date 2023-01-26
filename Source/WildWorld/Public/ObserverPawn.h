@@ -18,6 +18,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int SpeedMultiplier = 0;
 
+	///
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FHitResult HitNode;
+
+	FCollisionQueryParams IgnoreType;
+	///
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

@@ -17,7 +17,7 @@ AMyNodeActor::AMyNodeActor()
 	PrimaryActorTick.bCanEverTick = false;
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
-	Mesh->SetWorldScale3D(FVector(0.2, 0.2, 0.2));
+	Mesh->SetWorldScale3D(FVector(0.1, 0.1, 0.1));
 	Mesh->SetupAttachment(RootComponent);
 
 	//Trigger = CreateDefaultSubobject<USphereComponent>(TEXT("TriggerSphere"));
@@ -185,7 +185,7 @@ void AMyNodeActor::SumEvent(float val, AMyNodeActor* who)
 	//DynMater->SetVectorParameterValue("ColorVal", FLinearColor::MakeRandomColor());
 	*/
 
-	WidgetAP(IsFind->SubValue, ESubType::Sum);
+	WidgetAP(SumAllEventValue, ESubType::Sum);
 	
 	// set random color on the "colorval" property
 
@@ -252,7 +252,7 @@ void AMyNodeActor::CounterEvent(float val, AMyNodeActor* who)
 	
 	*/
 
-	WidgetAP(IsFind->SubValue, ESubType::Counter);
+	WidgetAP(CounterAllEventValue, ESubType::Counter);
 	
 	FVector StartScale = Mesh->GetRelativeScale3D();
 	

@@ -16,6 +16,9 @@ AObserverPawn::AObserverPawn()
 void AObserverPawn::BeginPlay()
 {
 	Super::BeginPlay();
+
+	///
+	IgnoreType.AddIgnoredActor(this);
 	
 }
 
@@ -23,6 +26,9 @@ void AObserverPawn::BeginPlay()
 void AObserverPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	GetWorld()->LineTraceSingleByObjectType(HitNode, this->GetActorLocation(), 
+		this->GetActorLocation() + this->GetActorForwardVector() * 800, FCollisionObjectQueryParams::AllDynamicObjects, IgnoreType);
 
 }
 
@@ -36,6 +42,7 @@ void AObserverPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("LookUp", this, &AObserverPawn::LookUp);
 	PlayerInputComponent->BindAxis("Turn", this, &AObserverPawn::TurnAround);
 	PlayerInputComponent->BindAxis("MoveUp", this, &AObserverPawn::MoveUp);
+
 }
 
 void AObserverPawn::MoveForward(float val)
@@ -85,4 +92,3 @@ void AObserverPawn::MoveUp(float val)
 		SetActorLocation(GetActorLocation() + (GetActorUpVector() * (val * SpeedMultiplier)));
 	}
 }
-
