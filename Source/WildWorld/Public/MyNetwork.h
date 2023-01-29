@@ -7,6 +7,10 @@
 
 #include "MyNetwork.generated.h"
 
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FNetworkIteration, float, Counter);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FNetworkIteration);
+
 class UMyNode;
 class AMyNodeActor;
 
@@ -56,8 +60,6 @@ class WILDWORLD_API AMyNetwork : public AActor
 	int32 perCreatandSub = 0;
 	int32 perInaction = 0;
 
-	int32 TickCounter = 0;
-
 	//int eventPercentArray[5];
 	
 public:	
@@ -68,11 +70,17 @@ public:
 	void StartSimulator();
 
 	UFUNCTION(BlueprintCallable)
-	int32 GetTickCounter()
+	int32 GetArrayNodeOnTheWorldSize()
 	{
-		return TickCounter;
+		return ArrayNodeOnTheWorld.Num();
 	};
 
+	UPROPERTY(BlueprintAssignable)
+	FNetworkIteration NetworkIterationDelegate;
+
+	UFUNCTION(BlueprintCallable)
+	void RemoveNetwork();
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

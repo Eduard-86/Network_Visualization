@@ -21,17 +21,28 @@ AMyNetwork::AMyNetwork()
 
 }
 
+void AMyNetwork::RemoveNetwork()
+{
+	for (AMyNodeActor* Node : ArrayNodeOnTheWorld)
+		Node->Destroy();
+
+	ArrayNodeOnTheWorld.Empty();
+
+	GetWorldTimerManager().ClearTimer(TimerHandle);
+}
+
 // Called when the game starts or when spawned
 void AMyNetwork::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	SettiStruct.EpsilonLocation = 5;
+
 }
 
 void AMyNetwork::StartSimulator()
 {
 	UWorld* World = GetWorld();
-
-	SettiStruct.EpsilonLocation = 5;
 
 	if (World)
 	{
@@ -51,10 +62,10 @@ void AMyNetwork::StartSimulator()
 
 			
 			ArrayNodeOnTheWorld.Add(NewNode);
-
+			/*
 			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, 
 				FString::FromInt(FMath::Rand() % SettiStruct.EpsilonLocation));
-
+			*/
 			NewNode->SetActorLocation(FVector(
 				1 + (10 * ((FMath::Rand() % SettiStruct.EpsilonLocation) + 1)),
 				(150 * i) + (10 * ((FMath::Rand() % SettiStruct.EpsilonLocation) + 1)),
@@ -104,7 +115,6 @@ void AMyNetwork::StartSimulator()
 		TimerHandle, this, &AMyNetwork::WorkTick,
 		SettiStruct.TimerRade, true);
 
-	
 }
 
 /*
@@ -240,8 +250,7 @@ void AMyNetwork::WorkTick()
 		 */
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green,
-		FString("NetworckSize - " + FString::FromInt(ArrayNodeOnTheWorld.Num())));
+	NetworkIterationDelegate.Broadcast();
 	
 	// Loop end flag 
 	UE_LOG(Network, Display, TEXT(
