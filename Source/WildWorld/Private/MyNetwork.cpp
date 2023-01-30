@@ -37,7 +37,6 @@ void AMyNetwork::BeginPlay()
 	Super::BeginPlay();
 	
 	SettiStruct.EpsilonLocation = 5;
-
 }
 
 void AMyNetwork::StartSimulator()
@@ -271,7 +270,7 @@ void AMyNetwork::WorkTick()
 				DrawDebugLine(World, ArrayNodeOnTheWorld[i]->GetActorLocation(),
 					ArrayNodeOnTheWorld[i]->MySubscription[j].SubNode->GetActorLocation(),
 					FColor::Red,
-					false, 2, 2, 3.f);
+					false, SettiStruct.TimerRade + 0.2, 2, 3.f);
 			}
 			else
 			{
