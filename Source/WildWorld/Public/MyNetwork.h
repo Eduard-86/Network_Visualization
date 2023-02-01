@@ -43,11 +43,6 @@ struct FRandomSettings
 	float TimerRade = 3.0f;
 };
 
-/*
-	Удаление узлов без связей
-	вызов рандомного евента
-	сохранение созданных элементов в основной массив
- */
 
 UCLASS()
 class WILDWORLD_API AMyNetwork : public AActor
@@ -96,18 +91,13 @@ protected:
 	TArray<AMyNodeActor*> ArrayNodeOnTheWorld;
 
 	TArray<AMyNodeActor*> ArrayNewNodes;
-	
-	//TArray<AMyNodeActor*> ArrayNewNodesNotAlone;
 
 	FTimerHandle TimerHandle;
 
-	
-	
 	/////////////////////////////////////////////////////////
-	//AMyNodeActor* NewNode1 = Cast<AMyNodeActor>(World->SpawnActor(ComponentClass));
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = BP) 
-	TSubclassOf<AMyNodeActor> ComponentClass;  
+	TSubclassOf<AMyNodeActor> NodeClass;  
 	
 	/////////////////////////////////////////////////////////
 };
