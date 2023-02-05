@@ -21,6 +21,14 @@ AMyNetwork::AMyNetwork()
 
 }
 
+// Called when the game starts or when spawned
+void AMyNetwork::BeginPlay()
+{
+	Super::BeginPlay();
+
+	SettiStruct.EpsilonLocation = 5;
+}
+
 void AMyNetwork::RemoveNetwork()
 {
 	for (AMyNodeActor* Node : ArrayNodeOnTheWorld)
@@ -31,12 +39,19 @@ void AMyNetwork::RemoveNetwork()
 	GetWorldTimerManager().ClearTimer(TimerHandle);
 }
 
-// Called when the game starts or when spawned
-void AMyNetwork::BeginPlay()
+void AMyNetwork::ChangeNetworkTimerTime()
 {
-	Super::BeginPlay();
-	
-	SettiStruct.EpsilonLocation = 5;
+	GetWorldTimerManager().ClearTimer(TimerHandle);
+
+	GetWorldTimerManager().SetTimer(
+		TimerHandle, this, &AMyNetwork::WorkTick,
+		SettiStruct.TimerRade, true);
+}
+
+void AMyNetwork::PauseAndChangeNetworkSettings(float NewTime)
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle);
+
 }
 
 void AMyNetwork::StartSimulator()
@@ -47,7 +62,7 @@ void AMyNetwork::StartSimulator()
 	{	
 		for(int i = 1; i <= start_size; ++i)
 		{
-			AMyNodeActor* NewNode = Cast<AMyNodeActor>(World->SpawnActor(NodeClass));
+			AMyNodeActor* NewNode = World->SpawnActor<AMyNodeActor>(NodeClass);
 
 			ArrayNodeOnTheWorld.Add(NewNode);
 
@@ -58,29 +73,45 @@ void AMyNetwork::StartSimulator()
 			
 		}
 
-		// Balay 
+		for (int i = 0; i < ArrayNodeOnTheWorld.Num() - 1; ++i)
+		{
+			ArrayNodeOnTheWorld[i]->SubscribeOnNewCreatedNode(ArrayNodeOnTheWorld[i + 1]);
+		}
+
+		// Line print
+		int ArraysCounter;
+
 		for (int i = 0; i < ArrayNodeOnTheWorld.Num(); ++i)
 		{
-			for (int j = 0; j < ArrayNodeOnTheWorld.Num(); ++j)
+			ArraysCounter = ArrayNodeOnTheWorld[i]->MySubscription.Num() +
+				ArrayNodeOnTheWorld[i]->SubDel.GetAllObjects().Num();
+
+			for (int j = 0; j < ArraysCounter; ++j)
 			{
-				if(i != j)
+				if (j < ArrayNodeOnTheWorld[i]->MySubscription.Num())
 				{
-					if (FMath::Rand() % 2 == 0)
-					{
-						ArrayNodeOnTheWorld[j]->SubscribeOnMe(ArrayNodeOnTheWorld[i], ESubType::Counter);
+					DrawDebugLine(World, ArrayNodeOnTheWorld[i]->GetActorLocation(),
+						ArrayNodeOnTheWorld[i]->MySubscription[j].SubNode->GetActorLocation(),
+						FColor::Red,
+						false, SettiStruct.TimerRade + 0.2, 2, 3.f);
+				}
+				else
+				{
+					int TempCountDelArray = j - ArrayNodeOnTheWorld[i]->MySubscription.Num();
 
-						ArrayNodeOnTheWorld[i]->MySubscription.Emplace(FSubData(ArrayNodeOnTheWorld[j], ESubType::Counter));
-					}
-					else
-					{
-						ArrayNodeOnTheWorld[j]->SubscribeOnMe(ArrayNodeOnTheWorld[i], ESubType::Sum);
+					AMyNodeActor* IsFind = Cast<AMyNodeActor>(ArrayNodeOnTheWorld[i]->SubDel.GetAllObjects()[TempCountDelArray]);
 
-						ArrayNodeOnTheWorld[i]->MySubscription.Emplace(FSubData(ArrayNodeOnTheWorld[j], ESubType::Sum));
-					}
+					DrawDebugLine(World, ArrayNodeOnTheWorld[i]->GetActorLocation(),
+						IsFind->GetActorLocation(),
+						FColor::Red,
+						false,
+						2, 2, 3.f);
 				}
 			}
 		}
 
+		//SETSETTSTRUCT();
+		
 		perCallEvet = SettiStruct.callEvet;
 
 		perSubscribeOnNode = SettiStruct.callEvet +
@@ -141,38 +172,6 @@ void AMyNetwork::WorkTick()
 {
 	UWorld* World = GetWorld();
 
-	// Line print
-	int ArraysCounter;
-
-	for (int i = 0; i < ArrayNodeOnTheWorld.Num(); ++i)
-	{
-		ArraysCounter = ArrayNodeOnTheWorld[i]->MySubscription.Num() +
-			ArrayNodeOnTheWorld[i]->SubDel.GetAllObjects().Num();
-
-		for (int j = 0; j < ArraysCounter; ++j)
-		{
-			if (j < ArrayNodeOnTheWorld[i]->MySubscription.Num())
-			{
-				DrawDebugLine(World, ArrayNodeOnTheWorld[i]->GetActorLocation(),
-					ArrayNodeOnTheWorld[i]->MySubscription[j].SubNode->GetActorLocation(),
-					FColor::Red,
-					false, SettiStruct.TimerRade + 0.2, 2, 3.f);
-			}
-			else
-			{
-				int TempCountDelArray = j - ArrayNodeOnTheWorld[i]->MySubscription.Num();
-
-				AMyNodeActor* IsFind = Cast<AMyNodeActor>(ArrayNodeOnTheWorld[i]->SubDel.GetAllObjects()[TempCountDelArray]);
-
-				DrawDebugLine(World, ArrayNodeOnTheWorld[i]->GetActorLocation(),
-					IsFind->GetActorLocation(),
-					FColor::Red,
-					false,
-					2, 2, 3.f);
-			}
-		}
-	}
-
 	// Убийство одиноких
 	for (int i = ArrayNodeOnTheWorld.Num() - 1; i > -1; --i)
 	{
@@ -196,7 +195,7 @@ void AMyNetwork::WorkTick()
 
 		if (RandIndex <= perCallEvet)
 		{
-			ArrayNodeOnTheWorld[i]->BroatcastEvectsAllSubs();
+			ArrayNodeOnTheWorld[i]->BroadcastEventsAllSubs();
 
 			UE_LOG(Network, Display, TEXT("Node - %s CallEvent"), *ArrayNodeOnTheWorld[i]->GetName());
 		}
@@ -216,21 +215,9 @@ void AMyNetwork::WorkTick()
 		{
 			// Перенести этот мусор в ноду, но пока оставим ибо атомарность 
 			
-			AMyNodeActor* NewNode = Cast<AMyNodeActor>(World->SpawnActor(NodeClass));
+			AMyNodeActor* NewNode = World->SpawnActor<AMyNodeActor>(NodeClass);
 
-			if (FMath::Rand() % 2 == 0)
-			{
-				NewNode->SubscribeOnMe(ArrayNodeOnTheWorld[i], ESubType::Counter);
-
-				ArrayNodeOnTheWorld[i]->MySubscription.Emplace(FSubData(NewNode, ESubType::Counter));
-
-			}
-			else
-			{
-				NewNode->SubscribeOnMe(ArrayNodeOnTheWorld[i], ESubType::Sum);
-
-				ArrayNodeOnTheWorld[i]->MySubscription.Emplace(FSubData(NewNode, ESubType::Sum));
-			}
+			ArrayNodeOnTheWorld[i]->SubscribeOnNewCreatedNode(NewNode);
 
 			ArrayNodeOnTheWorld.Add(NewNode);
 			
@@ -277,6 +264,38 @@ void AMyNetwork::WorkTick()
 		 */
 	}
 
+	// Line print
+	int ArraysCounter;
+
+	for (int i = 0; i < ArrayNodeOnTheWorld.Num(); ++i)
+	{
+		ArraysCounter = ArrayNodeOnTheWorld[i]->MySubscription.Num() +
+			ArrayNodeOnTheWorld[i]->SubDel.GetAllObjects().Num();
+
+		for (int j = 0; j < ArraysCounter; ++j)
+		{
+			if (j < ArrayNodeOnTheWorld[i]->MySubscription.Num())
+			{
+				DrawDebugLine(World, ArrayNodeOnTheWorld[i]->GetActorLocation(),
+					ArrayNodeOnTheWorld[i]->MySubscription[j].SubNode->GetActorLocation(),
+					FColor::Red,
+					false, SettiStruct.TimerRade + 0.2, 2, 3.f);
+			}
+			else
+			{
+				int TempCountDelArray = j - ArrayNodeOnTheWorld[i]->MySubscription.Num();
+
+				AMyNodeActor* IsFind = Cast<AMyNodeActor>(ArrayNodeOnTheWorld[i]->SubDel.GetAllObjects()[TempCountDelArray]);
+
+				DrawDebugLine(World, ArrayNodeOnTheWorld[i]->GetActorLocation(),
+					IsFind->GetActorLocation(),
+					FColor::Red,
+					false,
+					2, 2, 3.f);
+			}
+		}
+	}
+	
 	NetworkIterationDelegate.Broadcast();
 	
 	// Loop end flag 

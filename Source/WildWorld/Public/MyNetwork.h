@@ -43,10 +43,29 @@ struct FRandomSettings
 	float TimerRade = 3.0f;
 };
 
+#define SETSETTSTRUCT ({	\
+		perCallEvet = Se ttiStruct.callEvet; \
+		perSubscribeOnNode = SettiStruct.callEvet + \
+			SettiStruct.subscribeOnNode; \
+			perUnSubscribe = SettiStruct.callEvet + \
+			SettiStruct.subscribeOnNode + \
+			SettiStruct.unSubscribe; \
+			perCreatandSub = SettiStruct.callEvet + \
+			SettiStruct.subscribeOnNode + \
+			SettiStruct.unSubscribe + \
+			SettiStruct.creatandSub; \
+			perInaction = SettiStruct.callEvet + \
+			SettiStruct.subscribeOnNode + \
+			SettiStruct.unSubscribe + \
+			SettiStruct.creatandSub + \
+			SettiStruct.inaction; \
+		})
 
 UCLASS()
 class WILDWORLD_API AMyNetwork : public AActor
 {
+
+
 	GENERATED_BODY()
 
 	int32 perCallEvet = 0;
@@ -54,6 +73,7 @@ class WILDWORLD_API AMyNetwork : public AActor
 	int32 perUnSubscribe = 0;
 	int32 perCreatandSub = 0;
 	int32 perInaction = 0;
+
 
 	//int eventPercentArray[5];
 	
@@ -65,7 +85,7 @@ public:
 	void StartSimulator();
 
 	UFUNCTION(BlueprintCallable)
-	int32 GetArrayNodeOnTheWorldSize()
+	int32 GetArrayNodeOnTheWorldSize() const
 	{
 		return ArrayNodeOnTheWorld.Num();
 	};
@@ -73,9 +93,20 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FNetworkIteration NetworkIterationDelegate;
 
+	
+#pragma region TimerSettings
+
 	UFUNCTION(BlueprintCallable)
 	void RemoveNetwork();
+
+	// Change network time in runtime 
+	UFUNCTION(BlueprintCallable)
+	void ChangeNetworkTimerTime();
+
+	UFUNCTION(BlueprintCallable)
+	void PauseAndChangeNetworkSettings(float NewTime);
 	
+#pragma endregion 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -100,4 +131,7 @@ protected:
 	TSubclassOf<AMyNodeActor> NodeClass;  
 	
 	/////////////////////////////////////////////////////////
+	
+	
+
 };

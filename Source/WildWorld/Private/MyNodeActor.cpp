@@ -271,7 +271,7 @@ void AMyNodeActor::CounterEvent(float val, AMyNodeActor* who)
 
 #pragma region Events
 
-void AMyNodeActor::BroatcastEvectsAllSubs()
+void AMyNodeActor::BroadcastEventsAllSubs()
 {
 	SubDel.Broadcast(FMath::Rand() % 100, this);
 }
@@ -431,11 +431,20 @@ void AMyNodeActor::UnSubscribe()
 	}
 }
 
-AMyNodeActor* AMyNodeActor::CreateAndSubscribeNewNode()
+void AMyNodeActor::SubscribeOnNewCreatedNode(AMyNodeActor* NodeOnSub)
 {
-	//todo
-	// Ќа данный момент работу этого ивента выполн€ет менеджер
-	// нужно переработать 
+	if (FMath::Rand() % 2 == 0)
+	{
+		NodeOnSub->SubscribeOnMe(this, ESubType::Counter);
+
+		this->MySubscription.Emplace(FSubData(NodeOnSub, ESubType::Counter));
+	}
+	else
+	{
+		NodeOnSub->SubscribeOnMe(this, ESubType::Sum);
+
+		this->MySubscription.Emplace(FSubData(NodeOnSub, ESubType::Sum));
+	}
 
 	/*
 	UWorld* World = GetWorld();
@@ -455,6 +464,26 @@ AMyNodeActor* AMyNodeActor::CreateAndSubscribeNewNode()
 	check(World);
 	*/
 	
-	return nullptr;
+}
+
+void AMyNodeActor::SubscribeOnNewCreatedNode(AMyNodeActor* NodeOnSub, ESubType SubType)
+{
+	switch (SubType)
+	{
+		case ESubType::Counter :
+		{
+			NodeOnSub->SubscribeOnMe(this, SubType);
+
+			this->MySubscription.Emplace(FSubData(NodeOnSub, SubType));
+		}
+		case ESubType::Sum :
+		{
+			NodeOnSub->SubscribeOnMe(this, SubType);
+
+			this->MySubscription.Emplace(FSubData(NodeOnSub, SubType));
+		}
+	default:
+		check(false);
+	}
 }
 

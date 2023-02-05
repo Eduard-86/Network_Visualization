@@ -99,8 +99,8 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* Mesh;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	UShapeComponent* Trigger;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	//UShapeComponent* Trigger;
 	
 	UMaterialInstanceDynamic* DynMater;
 
@@ -143,22 +143,18 @@ protected:
 	
 #pragma region Events
 
-	// Те на кого я подписан
-	//TMap<AMyNodeActor*, Chaos::Pair<bool, float>> MySubscription1;
-
+	// Я подписан на 
 	TArray<FSubData> MySubscription;
 	
-	//TArray<AMyNodeActor*> MySubscription;
-
-	//TArray<AMyNodeActor*> ISubscription;
-
-	void BroatcastEvectsAllSubs(); 
+	void BroadcastEventsAllSubs(); 
 
 	void SubscribeOnNode(); 
 	
 	void UnSubscribe(); 
 	
-	AMyNodeActor* CreateAndSubscribeNewNode(); 
+	void SubscribeOnNewCreatedNode(AMyNodeActor* NodeOnSub);
+
+	void SubscribeOnNewCreatedNode(AMyNodeActor* NodeOnSub, ESubType SubType);
 
 	// for future
 	UFUNCTION(BlueprintCallable)
