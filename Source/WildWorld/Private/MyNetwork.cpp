@@ -39,10 +39,12 @@ void AMyNetwork::RemoveNetwork()
 	GetWorldTimerManager().ClearTimer(TimerHandle);
 }
 
-void AMyNetwork::ChangeNetworkTimerTime()
+void AMyNetwork::ChangeNetworkTimerTime(float NewTimeRate)
 {
 	GetWorldTimerManager().ClearTimer(TimerHandle);
 
+	SettiStruct.TimerRade = NewTimeRate;
+	
 	GetWorldTimerManager().SetTimer(
 		TimerHandle, this, &AMyNetwork::WorkTick,
 		SettiStruct.TimerRade, true);
@@ -51,7 +53,18 @@ void AMyNetwork::ChangeNetworkTimerTime()
 void AMyNetwork::PauseAndChangeNetworkSettings(float NewTime)
 {
 	GetWorldTimerManager().ClearTimer(TimerHandle);
+}
 
+void AMyNetwork::PauseOn()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle);
+}
+
+void AMyNetwork::PauseOff()
+{
+	GetWorldTimerManager().SetTimer(
+		TimerHandle, this, &AMyNetwork::WorkTick,
+		SettiStruct.TimerRade, true);
 }
 
 void AMyNetwork::StartSimulator()

@@ -101,10 +101,16 @@ public:
 
 	// Change network time in runtime 
 	UFUNCTION(BlueprintCallable)
-	void ChangeNetworkTimerTime();
+	void ChangeNetworkTimerTime(float NewTimeRate);
 
 	UFUNCTION(BlueprintCallable)
 	void PauseAndChangeNetworkSettings(float NewTime);
+
+	UFUNCTION(BlueprintCallable)
+	void PauseOn();
+
+	UFUNCTION(BlueprintCallable)
+	void PauseOff();
 	
 #pragma endregion 
 protected:
