@@ -41,13 +41,11 @@ void AMyNetwork::RemoveNetwork()
 
 void AMyNetwork::ChangeNetworkTimerTime(float NewTimeRate)
 {
-	GetWorldTimerManager().ClearTimer(TimerHandle);
+	PauseOn();
 
 	SettiStruct.TimerRade = NewTimeRate;
 	
-	GetWorldTimerManager().SetTimer(
-		TimerHandle, this, &AMyNetwork::WorkTick,
-		SettiStruct.TimerRade, true);
+	PauseOff();
 }
 
 void AMyNetwork::PauseAndChangeNetworkSettings(float NewTime)
@@ -65,6 +63,30 @@ void AMyNetwork::PauseOff()
 	GetWorldTimerManager().SetTimer(
 		TimerHandle, this, &AMyNetwork::WorkTick,
 		SettiStruct.TimerRade, true);
+}
+
+
+void AMyNetwork::SetInterestEvent()
+{
+	perCallEvet = SettiStruct.callEvet;
+
+	perSubscribeOnNode = SettiStruct.callEvet +
+		SettiStruct.subscribeOnNode;
+
+	perUnSubscribe = SettiStruct.callEvet +
+		SettiStruct.subscribeOnNode +
+		SettiStruct.unSubscribe;
+
+	perCreatandSub = SettiStruct.callEvet +
+		SettiStruct.subscribeOnNode +
+		SettiStruct.unSubscribe +
+		SettiStruct.creatandSub;
+
+	perInaction = SettiStruct.callEvet +
+		SettiStruct.subscribeOnNode +
+		SettiStruct.unSubscribe +
+		SettiStruct.creatandSub +
+		SettiStruct.inaction;
 }
 
 void AMyNetwork::StartSimulator()
@@ -125,25 +147,7 @@ void AMyNetwork::StartSimulator()
 
 		//SETSETTSTRUCT();
 		
-		perCallEvet = SettiStruct.callEvet;
-
-		perSubscribeOnNode = SettiStruct.callEvet +
-			SettiStruct.subscribeOnNode;
-
-		perUnSubscribe = SettiStruct.callEvet +
-			SettiStruct.subscribeOnNode +
-			SettiStruct.unSubscribe;
-
-		perCreatandSub = SettiStruct.callEvet +
-			SettiStruct.subscribeOnNode +
-			SettiStruct.unSubscribe +
-			SettiStruct.creatandSub;
-
-		perInaction = SettiStruct.callEvet +
-			SettiStruct.subscribeOnNode +
-			SettiStruct.unSubscribe +
-			SettiStruct.creatandSub +
-			SettiStruct.inaction;
+		SetInterestEvent();
 
 		GetWorldTimerManager().SetTimer(
 			TimerHandle, this, &AMyNetwork::WorkTick,

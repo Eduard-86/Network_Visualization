@@ -111,6 +111,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void PauseOff();
+
+	// Set Interest Event Ñhance for tick
+	UFUNCTION(BlueprintCallable)
+	void SetInterestEvent();
 	
 #pragma endregion 
 protected:
